@@ -46,7 +46,7 @@ public class NILayer implements BaseLayer {
     public void setAdapterNumber(int iNum) {
         this.m_iNumAdapter = iNum;//어뎁터 번호 초기화
         this.PacketStartDriver();//패킷 드라이버 시작 함수
-        this.Receive();//패킷 수신함수
+        this.receive();//패킷 수신함수
     }
 
     public void PacketStartDriver() {//패킷 드라이버 시작 함수
@@ -58,13 +58,13 @@ public class NILayer implements BaseLayer {
     }
 
     @Override
-    public String GetLayerName() {
+    public String getLayerName() {
         // TODO Auto-generated method stub
         return pLayerName;
     }
 
     @Override
-    public BaseLayer GetUnderLayer() {
+    public BaseLayer getUnderLayer() {
         // TODO Auto-generated method stub
         if (p_UnderLayer == null)
             return null;
@@ -72,7 +72,7 @@ public class NILayer implements BaseLayer {
     }
 
     @Override
-    public BaseLayer GetUpperLayer(int nindex) {
+    public BaseLayer getUpperLayer(int nindex) {
         // TODO Auto-generated method stub
         if (nindex < 0 || nindex > nUpperLayerCount || nUpperLayerCount < 0)
             return null;
@@ -80,7 +80,7 @@ public class NILayer implements BaseLayer {
     }
 
     @Override
-    public void SetUnderLayer(BaseLayer pUnderLayer) {
+    public void setUnderLayer(BaseLayer pUnderLayer) {
         // TODO Auto-generated method stub
         if (pUnderLayer == null)
             return;
@@ -88,7 +88,7 @@ public class NILayer implements BaseLayer {
     }
 
     @Override
-    public void SetUpperLayer(BaseLayer pUpperLayer) {
+    public void setUpperLayer(BaseLayer pUpperLayer) {
         // TODO Auto-generated method stub
         if (pUpperLayer == null)
             return;
@@ -97,21 +97,21 @@ public class NILayer implements BaseLayer {
     }
 
     @Override
-    public void SetUpperUnderLayer(BaseLayer pUULayer) {
-        this.SetUpperLayer(pUULayer);
-        pUULayer.SetUnderLayer(this);
+    public void setUpperUnderLayer(BaseLayer pUULayer) {
+        this.setUpperLayer(pUULayer);
+        pUULayer.setUnderLayer(this);
     }
 
     @Override
-    public boolean Receive() {//쓰레드 객체 생성
-        thread = new Receive_Thread(this.m_AdapterObject, this.GetUpperLayer(0));
+    public boolean receive() {//쓰레드 객체 생성
+        thread = new Receive_Thread(this.m_AdapterObject, this.getUpperLayer(0));
         Thread obj = new Thread(thread);
         obj.start();
 
         return false;
     }
 
-    public boolean Send(byte[] input, int length) {
+    public boolean send(byte[] input, int length) {
         ByteBuffer buf = ByteBuffer.wrap(input);
         if (m_AdapterObject.sendPacket(buf) != Pcap.OK) {
             System.err.println(m_AdapterObject.getErr());
@@ -146,7 +146,7 @@ class Receive_Thread implements Runnable {
             PcapPacketHandler<String> jpacketHandler = new PcapPacketHandler<String>() {
                 public void nextPacket(PcapPacket packet, String user) {
                     data = packet.getByteArray(0, packet.size());//패킷의 데이터 바이트배열와 패킷 크기를 알아냄
-                    UpperLayer.Receive(data);//상위 객체의 receive호출
+                    UpperLayer.receive(data);//상위 객체의 receive호출
                 }
             };
             AdapterObject.loop(10000, jpacketHandler, "");

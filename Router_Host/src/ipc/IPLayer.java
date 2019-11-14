@@ -8,7 +8,7 @@ public class IPLayer implements BaseLayer {
     public String pLayerName = null;
     public ArrayList<BaseLayer> p_aUnderLayer = new ArrayList<BaseLayer>();
     public ArrayList<BaseLayer> p_aUpperLayer = new ArrayList<BaseLayer>();
-    private _IP_Header ip_header = new _IP_Header();
+    private IpHeader ip_header = new IpHeader();
     // 1 : ARP, 0 : Ethernet
 
     public IPLayer(String pName) {
@@ -23,29 +23,29 @@ public class IPLayer implements BaseLayer {
     }
 
 
-    public boolean Send(byte[] input, int length) {
+    public boolean send(byte[] input, int length) {
         int resultLength = input.length;
         this.ip_header.ip_dstaddr.addr = new byte[4]; //헤더 주소 초기화
         this.ip_header.ip_srcaddr.addr = new byte[4];
-        SetIpSrcAddress(((ARPDlg) this.GetUpperLayer(0).GetUpperLayer(2)).getMyIPAddress());
+        SetIpSrcAddress(((ARPDlg) this.getUpperLayer(0).getUpperLayer(2)).getMyIPAddress());
 
         if (length == -1) { // 그래티우스일 경우 ARPLayer로 처리
-            SetIpDstAddress(((ARPDlg) this.GetUpperLayer(0).GetUpperLayer(2)).getMyIPAddress()); // dst도 내 Mac주소로 해서 그래티우스라는걸 작업
+            SetIpDstAddress(((ARPDlg) this.getUpperLayer(0).getUpperLayer(2)).getMyIPAddress()); // dst도 내 Mac주소로 해서 그래티우스라는걸 작업
         } else {
-            SetIpDstAddress(((ARPDlg) this.GetUpperLayer(0).GetUpperLayer(2)).getTargetIPAddress());
+            SetIpDstAddress(((ARPDlg) this.getUpperLayer(0).getUpperLayer(2)).getTargetIPAddress());
         }
 
-        byte[] temp = ObjToByte21(this.ip_header, input, resultLength); //multiplexing
+        byte[] temp = objToByte21(this.ip_header, input, resultLength); //multiplexing
 
         if (ARPLayer.containMacAddress(this.ip_header.ip_dstaddr.addr)) {//목적지 IP주소가 캐싱되어있으면 -> table 존재 -> data frame이므로 바로 전송
-            return this.GetUnderLayer(0).Send(temp, resultLength + 21);//데이터이므로 Ethernet Layer로 전달
+            return this.GetUnderLayer(0).send(temp, resultLength + 21);//데이터이므로 Ethernet Layer로 전달
         }
 
         //아니면 ARP 요청이므로 ARP Layer로 전달
-        return this.GetUnderLayer(1).Send(temp, resultLength + 21);
+        return this.GetUnderLayer(1).send(temp, resultLength + 21);
     }
 
-    private byte[] ObjToByte21(_IP_Header ip_header, byte[] input, int length) { // 헤더 추가부분
+    private byte[] objToByte21(IpHeader ip_header, byte[] input, int length) { // 헤더 추가부분
 
         byte[] buf = new byte[length + 21];
 
@@ -75,7 +75,7 @@ public class IPLayer implements BaseLayer {
         return buf;
     }
 
-    public synchronized boolean Receive(byte[] input) {
+    public synchronized boolean receive(byte[] input) {
 
         // IP 타입 체크 ip_verlen : ip version 0x04      ip_header.ip_tos : type of service 0x00
         if (this.ip_header.ip_verlen != input[1] || this.ip_header.ip_tos != input[2]) {
@@ -87,7 +87,7 @@ public class IPLayer implements BaseLayer {
 
         for (int addr_index_count = 0; addr_index_count < 4; addr_index_count++) { // 내 주소가 아닐 경우 무조건 proxy를 보내는 걸 한다.
             if (ARPDlg.MyIPAddress[addr_index_count] != input[17 + addr_index_count]) {  //수신한 데이터의 목적지 IP주소가 나의 IP주소와 일치하는지 확인
-                return this.GetUnderLayer(0).Send(input, packet_tot_len);  //일치하지 않으면 프록시 기능으로 대신 전달해야 하는 데이터라고 인지하여 Ethernet Layer에 전달
+                return this.GetUnderLayer(0).send(input, packet_tot_len);  //일치하지 않으면 프록시 기능으로 대신 전달해야 하는 데이터라고 인지하여 Ethernet Layer에 전달
                 //ethernet send에서 상대 맥주소 테이블에서 찾을때 ARP테이블이랑 proxy테이블 둘다 찾아봐야할듯?
                 //프록시 연결이 되고 데이터가 최종 목적지에 도착하면 최종목적지 arp테이블에 주소가 반영되는지?
             }
@@ -95,14 +95,14 @@ public class IPLayer implements BaseLayer {
 
         //일치하면 최종 목적지가 자신이므로 de-multiplex하고 상위 레이어로 올림
         if (input[10] == 0x06) {//IP Protocol 0x06 :TCP인지 판별
-            return this.GetUpperLayer(0).Receive(RemoveCappHeader(input, packet_tot_len));
+            return this.getUpperLayer(0).receive(RemoveCappHeader(input, packet_tot_len));
         }
 
         return false;
     }
 
     @Override
-    public String GetLayerName() {
+    public String getLayerName() {
         return pLayerName;
     }
 
@@ -115,21 +115,21 @@ public class IPLayer implements BaseLayer {
     }
 
     @Override
-    public BaseLayer GetUpperLayer(int nindex) {
+    public BaseLayer getUpperLayer(int nindex) {
         if (nindex < 0 || nindex > nUpperLayerCount || nUpperLayerCount < 0)
             return null;
         return p_aUpperLayer.get(nindex);
     }
 
     @Override
-    public void SetUnderLayer(BaseLayer pUnderLayer) {
+    public void setUnderLayer(BaseLayer pUnderLayer) {
         if (pUnderLayer == null)
             return;
         this.p_aUnderLayer.add(nUnderLayerCount++, pUnderLayer);
     }
 
     @Override
-    public void SetUpperLayer(BaseLayer pUpperLayer) {
+    public void setUpperLayer(BaseLayer pUpperLayer) {
         // TODO Auto-generated method stub
         if (pUpperLayer == null)
             return;
@@ -138,9 +138,9 @@ public class IPLayer implements BaseLayer {
     }
 
     @Override
-    public void SetUpperUnderLayer(BaseLayer pUULayer) {
-        this.SetUpperLayer(pUULayer);
-        pUULayer.SetUnderLayer(this);
+    public void setUpperUnderLayer(BaseLayer pUULayer) {
+        this.setUpperLayer(pUULayer);
+        pUULayer.setUnderLayer(this);
     }
 
     // src IP주소 세팅
@@ -154,8 +154,13 @@ public class IPLayer implements BaseLayer {
 
     }
 
+    @Override
+    public BaseLayer getUnderLayer() {
+        return null;
+    }
+
     // Header 자료구조
-    private class _IP_Header {
+    private class IpHeader {
         byte is_checked; // ARP면 0x06, 일반 데이터면 0x08  index 0
         byte ip_verlen; // ip version (1byte)   index 1
         byte ip_tos; // type of service (1byte) index 2
@@ -172,7 +177,7 @@ public class IPLayer implements BaseLayer {
 
         // byte ip_data[]; //variable length data (variable)
 
-        private _IP_Header() {
+        private IpHeader() {
             this.is_checked = 0x08;
             this.ip_verlen = 0x04; // IPV4 이므로 4로 지정
             this.ip_tos = 0x00;
@@ -198,10 +203,5 @@ public class IPLayer implements BaseLayer {
                 this.addr[3] = 0x00;
             }
         }
-    }
-
-    @Override
-    public BaseLayer GetUnderLayer() {
-        return null;
     }
 }

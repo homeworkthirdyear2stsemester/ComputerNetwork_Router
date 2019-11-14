@@ -5,18 +5,18 @@ import java.util.StringTokenizer;
 
 public class LayerManager {//Layer를 모두 관리 해줌
 
-    private class _NODE {//String으로 data 저장
+    private class Node {//String으로 data 저장
         private String token;
-        private _NODE next;
+        private Node next;
 
-        public _NODE(String input) {
+        public Node(String input) {
             this.token = input;
             this.next = null;
         }
     }
 
-    _NODE mp_sListHead;//head 지정
-    _NODE mp_sListTail;//tail 지정
+    Node mp_sListHead;//head 지정
+    Node mp_sListTail;//tail 지정
 
     private int m_nTop;
     private int m_nLayerCount;
@@ -44,7 +44,7 @@ public class LayerManager {//Layer를 모두 관리 해줌
 
     public BaseLayer GetLayer(String pName) {
         for (int i = 0; i < m_nLayerCount; i++) {
-            if (pName.compareTo(mp_aLayers.get(i).GetLayerName()) == 0)
+            if (pName.compareTo(mp_aLayers.get(i).getLayerName()) == 0)
                 return mp_aLayers.get(i);
         }
         return null;
@@ -59,17 +59,17 @@ public class LayerManager {//Layer를 모두 관리 해줌
         StringTokenizer tokens = new StringTokenizer(pcList, " ");
 
         for (; tokens.hasMoreElements(); ) {
-            _NODE pNode = AllocNode(tokens.nextToken());
+            Node pNode = AllocNode(tokens.nextToken());
             AddNode(pNode);
         }
     }//pcList의 str를 모두 node로 만들고 LinkedList에 추가 해 준다.
 
-    private _NODE AllocNode(String pcName) {
-        _NODE node = new _NODE(pcName);
+    private Node AllocNode(String pcName) {
+        Node node = new Node(pcName);
         return node;
     }//노드 생성 메소드
 
-    private void AddNode(_NODE pNode) {//Node추가 -> head와 tail이 지정됨
+    private void AddNode(Node pNode) {//Node추가 -> head와 tail이 지정됨
         if (mp_sListHead == null) {
             mp_sListHead = mp_sListTail = pNode;
         } else {
@@ -96,7 +96,7 @@ public class LayerManager {//Layer를 모두 관리 해줌
         return mp_Stack.get(m_nTop);
     }
 
-    private void LinkLayer(_NODE pNode) {//head로 시작
+    private void LinkLayer(Node pNode) {//head로 시작
         BaseLayer pLayer = null;
 
         while (pNode != null) {//tail까지 가도록 반복
@@ -115,13 +115,13 @@ public class LayerManager {//Layer를 모두 관리 해줌
 
                     switch (cMode) {
                         case '*':
-                            Top().SetUpperUnderLayer(pLayer);//layer를 top에 넣기, 현재 class layer를 under layer에 넣기
+                            Top().setUpperUnderLayer(pLayer);//layer를 top에 넣기, 현재 class layer를 under layer에 넣기
                             break;
                         case '+':
-                            Top().SetUpperLayer(pLayer);//upper layer에 입력
+                            Top().setUpperLayer(pLayer);//upper layer에 입력
                             break;
                         case '-':
-                            Top().SetUnderLayer(pLayer);//under layer로 지정
+                            Top().setUnderLayer(pLayer);//under layer로 지정
                             break;
                     }
                 }

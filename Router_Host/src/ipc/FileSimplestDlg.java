@@ -328,7 +328,7 @@ public class FileSimplestDlg extends JFrame implements BaseLayer {
                     return;
                 }
                 byte[] arrayOfByte = sendMessage.getBytes();
-                if (tempChatAppLayer.Send(arrayOfByte, arrayOfByte.length)) {
+                if (tempChatAppLayer.send(arrayOfByte, arrayOfByte.length)) {
                     ChattingArea.append("[SEND] : " + sendMessage + "\n");
                 } else {
                     ChattingArea.append("[Error] : send reject\n");
@@ -367,7 +367,7 @@ public class FileSimplestDlg extends JFrame implements BaseLayer {
     }
 
 
-    public boolean Receive(byte[] input) {
+    public boolean receive(byte[] input) {
         /*
          *    과제 채팅 화면에 채팅 보여주기
          */
@@ -380,42 +380,42 @@ public class FileSimplestDlg extends JFrame implements BaseLayer {
     }
 
     @Override
-    public void SetUnderLayer(BaseLayer pUnderLayer) {
+    public void setUnderLayer(BaseLayer pUnderLayer) {
         if (pUnderLayer == null)
             return;
         this.p_UnderLayer = pUnderLayer;
     }
 
     @Override
-    public void SetUpperLayer(BaseLayer pUpperLayer) {
+    public void setUpperLayer(BaseLayer pUpperLayer) {
         if (pUpperLayer == null)
             return;
         this.p_aUpperLayer.add(nUpperLayerCount++, pUpperLayer);//top에 넣는다
     }
 
     @Override
-    public String GetLayerName() {
+    public String getLayerName() {
         return pLayerName;
     }
 
     @Override
-    public BaseLayer GetUnderLayer() {
+    public BaseLayer getUnderLayer() {
         if (p_UnderLayer == null)
             return null;
         return p_UnderLayer;
     }
 
     @Override
-    public BaseLayer GetUpperLayer(int nindex) {
+    public BaseLayer getUpperLayer(int nindex) {
         if (nindex < 0 || nindex > nUpperLayerCount || nUpperLayerCount < 0)
             return null;
         return p_aUpperLayer.get(nindex);
     }
 
     @Override
-    public void SetUpperUnderLayer(BaseLayer pUULayer) {
-        this.SetUpperLayer(pUULayer);
-        pUULayer.SetUnderLayer(this);
+    public void setUpperUnderLayer(BaseLayer pUULayer) {
+        this.setUpperLayer(pUULayer);
+        pUULayer.setUnderLayer(this);
     }
 
     private class MacAndName {

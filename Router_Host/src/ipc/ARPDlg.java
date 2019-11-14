@@ -91,9 +91,9 @@ public class ARPDlg extends JFrame implements BaseLayer {
         //arp_table
 
         String result = "";
-        for (String key : ARPLayer.arp_table.keySet()) {
-            if (ARPLayer.arp_table.get(key).length != 1) {
-                result += key + "          " + MacToString(ARPLayer.arp_table.get(key)) + "                    " + "Complete\n";
+        for (String key : ARPLayer.arpTable.keySet()) {
+            if (ARPLayer.arpTable.get(key).length != 1) {
+                result += key + "          " + MacToString(ARPLayer.arpTable.get(key)) + "                    " + "Complete\n";
             } else {
                 result += key + "          " + "??????????" + "                    " + "Incomplete\n";
             }
@@ -214,42 +214,42 @@ public class ARPDlg extends JFrame implements BaseLayer {
     }
 
     @Override
-    public void SetUnderLayer(BaseLayer pUnderLayer) {
+    public void setUnderLayer(BaseLayer pUnderLayer) {
         if (pUnderLayer == null)
             return;
         this.p_UnderLayer = pUnderLayer;
     }
 
     @Override
-    public void SetUpperLayer(BaseLayer pUpperLayer) {
+    public void setUpperLayer(BaseLayer pUpperLayer) {
         if (pUpperLayer == null)
             return;
         this.p_aUpperLayer.add(nUpperLayerCount++, pUpperLayer);
     }
 
     @Override
-    public String GetLayerName() {
+    public String getLayerName() {
         return pLayerName;
     }
 
     @Override
-    public BaseLayer GetUnderLayer() {
+    public BaseLayer getUnderLayer() {
         if (p_UnderLayer == null)
             return null;
         return p_UnderLayer;
     }
 
     @Override
-    public BaseLayer GetUpperLayer(int nindex) {
+    public BaseLayer getUpperLayer(int nindex) {
         if (nindex < 0 || nindex > nUpperLayerCount || nUpperLayerCount < 0)
             return null;
         return p_aUpperLayer.get(nindex);
     }
 
     @Override
-    public void SetUpperUnderLayer(BaseLayer pUULayer) {
-        this.SetUpperLayer(pUULayer);
-        pUULayer.SetUnderLayer(this);
+    public void setUpperUnderLayer(BaseLayer pUULayer) {
+        this.setUpperLayer(pUULayer);
+        pUULayer.setUnderLayer(this);
     }
 
     private class MacAndName {
@@ -300,9 +300,9 @@ public class ARPDlg extends JFrame implements BaseLayer {
                     String newResultInArpCahceText = IPAddress + "          ??????????          Incomplete\n";
                     ARPCacheTextArea.append(newResultInArpCahceText);
                     IPAddressArea.setText("");
-                    m_LayerMgr.GetLayer("TCP").Send(new byte[1], 1);
+                    m_LayerMgr.GetLayer("TCP").send(new byte[1], 1);
                 } else if (ARPLayer.containMacAddress(IPAddressByteArray)
-                        && ARPLayer.arp_table.get(ARPLayer.byteArrayToString(IPAddressByteArray)).length != 1) {
+                        && ARPLayer.arpTable.get(ARPLayer.byteArrayToString(IPAddressByteArray)).length != 1) {
                     byte[] macAddress = ARPLayer.getMacAddress(IPAddressByteArray);
                     IPAddress = IPAddress + "          " + MacToString(macAddress) + "                    Complete\n";
                     ARPCacheTextArea.append(IPAddress);
@@ -378,7 +378,7 @@ public class ARPDlg extends JFrame implements BaseLayer {
                     MyMacAddress = GratuitousAddress;
                     FileSimplestDlg.srcAddress.setText(HWAddress);
 
-                    m_LayerMgr.GetLayer("TCP").Send(new byte[1], -1);
+                    m_LayerMgr.GetLayer("TCP").send(new byte[1], -1);
                     HWAddressArea.setText("");
                 }
             }

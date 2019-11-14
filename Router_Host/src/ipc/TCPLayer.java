@@ -17,17 +17,17 @@ public class TCPLayer implements BaseLayer {
     }
 
     @Override
-    public boolean Send(byte[] input, int length) {
+    public boolean send(byte[] input, int length) {
         int resultLength = input.length;
 
         byte[] tcpSegment = new byte[resultLength + 24];
         this.inputHeaderData(tcpSegment, input);
 
         if (length == -1) {
-            return this.GetUnderLayer().Send(tcpSegment, -1);
+            return this.getUnderLayer().send(tcpSegment, -1);
         }
 
-        return this.GetUnderLayer().Send(tcpSegment, tcpSegment.length);
+        return this.getUnderLayer().send(tcpSegment, tcpSegment.length);
     }
 
     private void inputHeaderData(byte[] tcpSegment, byte[] data) {
@@ -62,8 +62,8 @@ public class TCPLayer implements BaseLayer {
     }
 
     @Override
-    public boolean Receive(byte[] input) {
-        return this.GetUpperLayer(0).Receive(this.removeCapHeader(input));
+    public boolean receive(byte[] input) {
+        return this.getUpperLayer(0).receive(this.removeCapHeader(input));
     }
 
     private byte[] removeCapHeader(byte[] input) {
@@ -75,42 +75,42 @@ public class TCPLayer implements BaseLayer {
 
 
     @Override
-    public String GetLayerName() {
+    public String getLayerName() {
         return pLayerName;
     }
 
     @Override
-    public BaseLayer GetUnderLayer() {
+    public BaseLayer getUnderLayer() {
         if (p_UnderLayer == null)
             return null;
         return p_UnderLayer;
     }
 
     @Override
-    public BaseLayer GetUpperLayer(int nindex) {
+    public BaseLayer getUpperLayer(int nindex) {
         if (nindex < 0 || nindex > nUpperLayerCount || nUpperLayerCount < 0)
             return null;
         return p_aUpperLayer.get(nindex);
     }
 
     @Override
-    public void SetUnderLayer(BaseLayer pUnderLayer) {
+    public void setUnderLayer(BaseLayer pUnderLayer) {
         if (pUnderLayer == null)
             return;
         this.p_UnderLayer = pUnderLayer;
     }
 
     @Override
-    public void SetUpperLayer(BaseLayer pUpperLayer) {
+    public void setUpperLayer(BaseLayer pUpperLayer) {
         if (pUpperLayer == null)
             return;
         this.p_aUpperLayer.add(nUpperLayerCount++, pUpperLayer);//layer異붽�
     }
 
     @Override
-    public void SetUpperUnderLayer(BaseLayer pUULayer) {
-        this.SetUpperLayer(pUULayer);
-        pUULayer.SetUnderLayer(this);
+    public void setUpperUnderLayer(BaseLayer pUULayer) {
+        this.setUpperLayer(pUULayer);
+        pUULayer.setUnderLayer(this);
     }
 
 

@@ -7,15 +7,15 @@ public class ChatAppLayer implements BaseLayer {
     public String pLayerName;
     public BaseLayer p_UnderLayer = null;
     public ArrayList<BaseLayer> p_aUpperLayer = new ArrayList<>();
-    private _CAPP_HEADER m_sHeader = new _CAPP_HEADER();
+    private ChatAppHeader m_sHeader = new ChatAppHeader();
 
-    private class _CAPP_HEADER {
+    private class ChatAppHeader {
         byte[] capp_totlen;
         byte capp_type;
         byte capp_unused;
         byte[] capp_data;
 
-        public _CAPP_HEADER() {
+        public ChatAppHeader() {
             this.capp_totlen = new byte[2];
             this.capp_type = 0x00;
             this.capp_unused = 0x00;
@@ -46,12 +46,12 @@ public class ChatAppLayer implements BaseLayer {
     }
 
     @Override
-    public boolean Send(byte[] input, int length) {
+    public boolean send(byte[] input, int length) {
         byte[] totalLength = this.totalLength(length);
         byte type = 0x00;
         byte[] sendData = this.objectToByte(input, length, totalLength, type);
 
-        return this.GetUnderLayer().Send(sendData, sendData.length);
+        return this.getUnderLayer().send(sendData, sendData.length);
     }
 
     private byte[] objectToByte(byte[] input, int length, byte[] totlen, byte type) {
@@ -68,53 +68,53 @@ public class ChatAppLayer implements BaseLayer {
         return sendData;
     }
 
-    public byte[] RemoveCappHeader(byte[] input, int length) {
+    private byte[] removeCappHeader(byte[] input, int length) {
         byte[] finalByteArray = new byte[length - 4];
         System.arraycopy(input, 4, finalByteArray, 0, length - 4);
         return finalByteArray;// 변경하세요 필요하시면
     }
 
-    public synchronized boolean Receive(byte[] input) {
-        return this.GetUpperLayer(0).Receive(this.RemoveCappHeader(input, input.length));
+    public synchronized boolean receive(byte[] input) {
+        return this.getUpperLayer(0).receive(this.removeCappHeader(input, input.length));
         // 주소설정
     }
 
     @Override
-    public String GetLayerName() {
+    public String getLayerName() {
         return pLayerName;
     }
 
     @Override
-    public BaseLayer GetUnderLayer() {
+    public BaseLayer getUnderLayer() {
         if (p_UnderLayer == null)
             return null;
         return p_UnderLayer;
     }
 
     @Override
-    public BaseLayer GetUpperLayer(int nindex) {
+    public BaseLayer getUpperLayer(int nindex) {
         if (nindex < 0 || nindex > nUpperLayerCount || nUpperLayerCount < 0)
             return null;
         return p_aUpperLayer.get(nindex);
     }
 
     @Override
-    public void SetUnderLayer(BaseLayer pUnderLayer) {
+    public void setUnderLayer(BaseLayer pUnderLayer) {
         if (pUnderLayer == null)
             return;
         this.p_UnderLayer = pUnderLayer;
     }
 
     @Override
-    public void SetUpperLayer(BaseLayer pUpperLayer) {
+    public void setUpperLayer(BaseLayer pUpperLayer) {
         if (pUpperLayer == null)
             return;
         this.p_aUpperLayer.add(nUpperLayerCount++, pUpperLayer);//layer추가
     }
 
     @Override
-    public void SetUpperUnderLayer(BaseLayer pUULayer) {
-        this.SetUpperLayer(pUULayer);
-        pUULayer.SetUnderLayer(this);
+    public void setUpperUnderLayer(BaseLayer pUULayer) {
+        this.setUpperLayer(pUULayer);
+        pUULayer.setUnderLayer(this);
     }
 }

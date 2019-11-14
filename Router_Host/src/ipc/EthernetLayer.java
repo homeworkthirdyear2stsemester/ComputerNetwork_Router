@@ -70,33 +70,33 @@ public class EthernetLayer implements BaseLayer {
     }
 
     @Override
-    public String GetLayerName() {
+    public String getLayerName() {
         return pLayerName;
     }
 
     @Override
-    public BaseLayer GetUnderLayer() {
+    public BaseLayer getUnderLayer() {
         if (p_UnderLayer == null)
             return null;
         return p_UnderLayer;
     }
 
     @Override
-    public BaseLayer GetUpperLayer(int nindex) {
+    public BaseLayer getUpperLayer(int nindex) {
         if (nindex < 0 || nindex > nUpperLayerCount || nUpperLayerCount < 0)
             return null;
         return p_aUpperLayer.get(nindex);
     }
 
     @Override
-    public void SetUnderLayer(BaseLayer pUnderLayer) {
+    public void setUnderLayer(BaseLayer pUnderLayer) {
         if (pUnderLayer == null)
             return;
         this.p_UnderLayer = pUnderLayer;
     }
 
     @Override
-    public void SetUpperLayer(BaseLayer pUpperLayer) {
+    public void setUpperLayer(BaseLayer pUpperLayer) {
         if (pUpperLayer == null)
             return;
         this.p_aUpperLayer.add(nUpperLayerCount++, pUpperLayer);//layer추가
@@ -104,13 +104,13 @@ public class EthernetLayer implements BaseLayer {
     }
 
     @Override
-    public void SetUpperUnderLayer(BaseLayer pUULayer) {
-        this.SetUpperLayer(pUULayer);
-        pUULayer.SetUnderLayer(this);
+    public void setUpperUnderLayer(BaseLayer pUULayer) {
+        this.setUpperLayer(pUULayer);
+        pUULayer.setUnderLayer(this);
     }
 
     @Override
-    public synchronized boolean Send(byte[] input, int length) {
+    public synchronized boolean send(byte[] input, int length) {
         byte is_checked = input[0];
         byte[] headerAddedArray = new byte[length + 14];
         int index = 0;
@@ -149,19 +149,19 @@ public class EthernetLayer implements BaseLayer {
         headerAddedArray[12] = this.ethernetHeader.enet_type[0];
         System.arraycopy(input, 0, headerAddedArray, 14, length);
 
-        return this.GetUnderLayer().Send(headerAddedArray, headerAddedArray.length);
+        return this.getUnderLayer().send(headerAddedArray, headerAddedArray.length);
     }
 
     @Override
-    public synchronized boolean Receive(byte[] input) {
+    public synchronized boolean receive(byte[] input) {
         if (!this.isMyAddress(input) && (this.isBoardData(input) || this.isMyConnectionData(input))
                 && input[12] == 0x08) {//브로드이거나 나한테
             byte[] removedHeaderData = this.removeCappHeaderData(input);
             if (input[13] == 0x08) {//ip
                 System.out.println(input);
-                return this.GetUpperLayer(0).Receive(removedHeaderData); // IP Layer
+                return this.getUpperLayer(0).receive(removedHeaderData); // IP Layer
             } else if (input[13] == 0x06) {//arp
-                return this.GetUpperLayer(1).Receive(removedHeaderData); // ARP Layer
+                return this.getUpperLayer(1).receive(removedHeaderData); // ARP Layer
             }
         }
         return false;

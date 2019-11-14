@@ -62,13 +62,13 @@ public class FileAppLayer implements BaseLayer {
     }
 
     @Override
-    public String GetLayerName() {
+    public String getLayerName() {
         // TODO Auto-generated method stub
         return pLayerName;
     }
 
     @Override
-    public BaseLayer GetUnderLayer() {
+    public BaseLayer getUnderLayer() {
         // TODO Auto-generated method stub
         if (p_UnderLayer == null)
             return null;
@@ -76,7 +76,7 @@ public class FileAppLayer implements BaseLayer {
     }
 
     @Override
-    public BaseLayer GetUpperLayer(int nindex) {
+    public BaseLayer getUpperLayer(int nindex) {
         // TODO Auto-generated method stub
         if (nindex < 0 || nindex > nUpperLayerCount || nUpperLayerCount < 0)
             return null;
@@ -84,7 +84,7 @@ public class FileAppLayer implements BaseLayer {
     }
 
     @Override
-    public void SetUnderLayer(BaseLayer pUnderLayer) {
+    public void setUnderLayer(BaseLayer pUnderLayer) {
         // TODO Auto-generated method stub
         if (pUnderLayer == null)
             return;
@@ -92,7 +92,7 @@ public class FileAppLayer implements BaseLayer {
     }
 
     @Override
-    public void SetUpperLayer(BaseLayer pUpperLayer) {
+    public void setUpperLayer(BaseLayer pUpperLayer) {
         // TODO Auto-generated method stub
         if (pUpperLayer == null)
             return;
@@ -101,13 +101,13 @@ public class FileAppLayer implements BaseLayer {
     }
 
     @Override
-    public void SetUpperUnderLayer(BaseLayer pUULayer) {
-        this.SetUpperLayer(pUULayer);
-        pUULayer.SetUnderLayer(this);
+    public void setUpperUnderLayer(BaseLayer pUULayer) {
+        this.setUpperLayer(pUULayer);
+        pUULayer.setUnderLayer(this);
     }
 
     public boolean sendData() {
-        FileSimplestDlg upperLayer = (FileSimplestDlg) this.GetUpperLayer(0);
+        FileSimplestDlg upperLayer = (FileSimplestDlg) this.getUpperLayer(0);
         try (FileInputStream fileInputStream = new FileInputStream(this.sendFile)) {
             BufferedInputStream fileReader = new BufferedInputStream(fileInputStream);
             int maxIndex = this.frameSize(this.sendFile.length());//파일의 최대 크기
@@ -141,7 +141,7 @@ public class FileAppLayer implements BaseLayer {
         byte[] sendData = this.objectToByte(inputData);
 
         System.out.println(index);
-        return this.Send(sendData, sendData.length);
+        return this.send(sendData, sendData.length);
     }
 
     private void waitThread() {
@@ -177,12 +177,12 @@ public class FileAppLayer implements BaseLayer {
         byte[] fileNameToByteArray = this.objectToByte(fileName.getBytes());
         this._fileHeaderForSend.fapp_type[1] = 0x01;
         this._fileHeaderForSend.fapp_msg_type = (byte) 0x01;
-        return this.Send(fileNameToByteArray, fileNameToByteArray.length);
+        return this.send(fileNameToByteArray, fileNameToByteArray.length);
     }
 
     @Override
-    public boolean Send(byte[] fileData, int length) {
-        return this.GetUnderLayer().Send(fileData, length);
+    public boolean send(byte[] fileData, int length) {
+        return this.getUnderLayer().send(fileData, length);
     }
 
     private int frameSize(long fileSize) {
@@ -208,7 +208,7 @@ public class FileAppLayer implements BaseLayer {
     }
 
     private void waitForOtherFrameSendAndSetEhterNetHeaderType() {//ehternet에서 초기화 해 줄 경우 쓰레드 상에서 오류 header type문제 해결
-        EthernetLayer underLayer = (EthernetLayer) this.GetUnderLayer();
+        EthernetLayer underLayer = (EthernetLayer) this.getUnderLayer();
         while (!((underLayer).ethernetHeaderGetType(0) == 0x00
                 && (underLayer).ethernetHeaderGetType(1) == 0x00)) {
             this.waitThread();
@@ -237,10 +237,10 @@ public class FileAppLayer implements BaseLayer {
     }
 
     @Override
-    public synchronized boolean Receive(byte[] inputData) {
+    public synchronized boolean receive(byte[] inputData) {
         long totalRealLength = this.changeByteToIntTotalLength();
         int totalLength = this.frameSize(totalRealLength);
-        FileSimplestDlg upperLayer = ((FileSimplestDlg) this.GetUpperLayer(0));
+        FileSimplestDlg upperLayer = ((FileSimplestDlg) this.getUpperLayer(0));
 
         if (inputData[6] == (byte) 0x00 && inputData[5] == (byte) 0x00 && this._fileHeaderForReceive.fapp_msg_type == 0x00) {
             System.out.println("accept 1st frame");
@@ -315,12 +315,12 @@ public class FileAppLayer implements BaseLayer {
                     System.out.println("duplication is happen");
                     indexOfSequceNumber--;
                 }
-                ((FileSimplestDlg) this.GetUpperLayer(0)).progressBar.setValue(50 + percent);
+                ((FileSimplestDlg) this.getUpperLayer(0)).progressBar.setValue(50 + percent);
             }
             if (!this.writeForLast(maxSeqenceNumber - 1, fileOutputStream, totalRealLength)) {
                 return false;
             }
-            ((FileSimplestDlg) this.GetUpperLayer(0)).progressBar.setValue(100);
+            ((FileSimplestDlg) this.getUpperLayer(0)).progressBar.setValue(100);
             fileOutputStream.flush();
         } catch (IOException e) {
             e.printStackTrace();

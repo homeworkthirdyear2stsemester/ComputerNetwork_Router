@@ -8,34 +8,34 @@ interface BaseLayer {
     public final BaseLayer mp_UnderLayer = null;
     public final ArrayList<BaseLayer> mp_aUpperLayer = new ArrayList<BaseLayer>();
 
-    public String GetLayerName();
+    public String getLayerName();
 
-    public BaseLayer GetUnderLayer();
+    public BaseLayer getUnderLayer();
 
-    public BaseLayer GetUpperLayer(int nindex);
+    public BaseLayer getUpperLayer(int nindex);
 
-    public void SetUnderLayer(BaseLayer pUnderLayer);
+    public void setUnderLayer(BaseLayer pUnderLayer);
 
-    public void SetUpperLayer(BaseLayer pUpperLayer);
+    public void setUpperLayer(BaseLayer pUpperLayer);
 
-    public default void SetUnderUpperLayer(BaseLayer pUULayer) {
+    public default void setUnderUpperLayer(BaseLayer pUULayer) {
     }
 
-    public void SetUpperUnderLayer(BaseLayer pUULayer);
+    public void setUpperUnderLayer(BaseLayer pUULayer);
 
-    public default boolean Send(byte[] input, int length) {
+    public default boolean send(byte[] input, int length) {
         return false;
     }
 
-    public default boolean Send(String filename) {
+    public default boolean send(String filename) {
         return false;
     }
 
-    public default boolean Receive(byte[] input) {
+    public default boolean receive(byte[] input) {
         return false;
     }
 
-    public default boolean Receive() {
+    public default boolean receive() {
         return false;
     }
     //default로 선언 되었으면 interface에서 구현 가능하고, overriding이 가능하다
