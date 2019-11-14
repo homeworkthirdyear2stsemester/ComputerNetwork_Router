@@ -200,7 +200,7 @@ public class EthernetLayer implements BaseLayer {
     }// 브로드 케스트인지 check
 
     private boolean isMyConnectionData(byte[] inputFrameData) {
-        byte[] srcAddr = ARPDlg.MyMacAddress;
+        byte[] srcAddr = ARPDlg.myMacAddress;
         return this.checkTheFrameData(srcAddr, inputFrameData, 0);
     }// 지금 받은 frame이 나랑 연결된 mac주소인지 판별
 

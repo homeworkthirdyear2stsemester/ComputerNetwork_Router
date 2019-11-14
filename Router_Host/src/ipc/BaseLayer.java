@@ -3,10 +3,10 @@ package ipc;
 import java.util.ArrayList;
 
 interface BaseLayer {
-    public final int m_nUpperLayerCount = 0;
-    public final String m_pLayerName = null;
-    public final BaseLayer mp_UnderLayer = null;
-    public final ArrayList<BaseLayer> mp_aUpperLayer = new ArrayList<BaseLayer>();
+    public final int mnUpperLayerCount = 0;
+    public final String mpLayerName = null;
+    public final BaseLayer mpUnderLayer = null;
+    public final ArrayList<BaseLayer> mpaUpperLayer = new ArrayList<>();
 
     public String getLayerName();
 

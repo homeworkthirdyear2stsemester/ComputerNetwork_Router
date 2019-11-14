@@ -63,23 +63,23 @@ public class ARPLayer implements BaseLayer {
     public synchronized boolean send(byte[] input, int length) {
         // IPLayer가 arp테이블을 봤는데 없어서 일로 옴
         // ARP를 만든다.
-        this.arpHeader.arpSrcaddr.ipAddr = ARPDlg.MyIPAddress; // 출발지 IP주소 = 내 IP주소
+        this.arpHeader.arpSrcaddr.ipAddr = ARPDlg.myIPAddress; // 출발지 IP주소 = 내 IP주소
         byte[] targetip = Arrays.copyOfRange(input, 13, 17);
         byte[] myip = Arrays.copyOfRange(input, 17, 21);
         if (Arrays.equals(targetip, myip)) { // g ARP : mac 주소 변경
             this.arpHeader.arpSrcaddr.macAddr = ARPDlg.GratuitousAddress; // 출발지 맥주소 = 바뀐주소
-            this.arpHeader.arpDstaddr.ipAddr = ARPDlg.MyIPAddress; // 도착지 근원지IP주소 = 내 IP주소
+            this.arpHeader.arpDstaddr.ipAddr = ARPDlg.myIPAddress; // 도착지 근원지IP주소 = 내 IP주소
             byte[] arp = objToByteSend(arpHeader, (byte) 0x06, (byte) 0x01);
 
             return getUnderLayer().send(arp, arp.length);
         } else {
-            this.arpHeader.arpSrcaddr.macAddr = ARPDlg.MyMacAddress;
-            this.arpHeader.arpDstaddr.ipAddr = ARPDlg.TargetIPAddress;
+            this.arpHeader.arpSrcaddr.macAddr = ARPDlg.myMacAddress;
+            this.arpHeader.arpDstaddr.ipAddr = ARPDlg.targetIPAddress;
 
             this.arpHeader.arpDstaddr.macAddr = new byte[6]; // 다시 0 으로 초기화 해서 잔료 데이터를 없애준다
 
             byte[] headerAddedArray = objToByteSend(arpHeader, (byte) 0x06, (byte) 0x01);// ARP이고 요청인 헤더
-            arpTable.put(byteArrayToString(ARPDlg.TargetIPAddress), new byte[1]);
+            arpTable.put(byteArrayToString(ARPDlg.targetIPAddress), new byte[1]);
             ARPDlg.updateARPTableToGUI();
 
             return this.getUnderLayer().send(headerAddedArray, headerAddedArray.length);
@@ -98,8 +98,8 @@ public class ARPLayer implements BaseLayer {
         if (opcode[0] == 0x00 & opcode[1] == 0x01) {// ARP 요청 받음
             this.setTimer(src_ip_address, 180000);
             ArpHeader responseHeader = new ArpHeader();// 보낼 헤드 생성
-            if (Arrays.equals(dst_ip_address, ARPDlg.MyIPAddress)) {// 내 ip로 온 경우 내 IP랑 헤더에 적힌 IP비교 -> 아닐경우 Proxy
-                responseHeader.arpSrcaddr.macAddr = ARPDlg.MyMacAddress;// 내 mac주소 넣어준다.
+            if (Arrays.equals(dst_ip_address, ARPDlg.myIPAddress)) {// 내 ip로 온 경우 내 IP랑 헤더에 적힌 IP비교 -> 아닐경우 Proxy
+                responseHeader.arpSrcaddr.macAddr = ARPDlg.myMacAddress;// 내 mac주소 넣어준다.
                 responseHeader.arpSrcaddr.ipAddr = dst_ip_address;
                 responseHeader.arpDstaddr.macAddr = src_mac_address;
                 responseHeader.arpDstaddr.ipAddr = src_ip_address;
@@ -110,7 +110,7 @@ public class ARPLayer implements BaseLayer {
                 return true;
             } else {// 내 ip로 안옴
                 if (proxyTable.containsKey(byteArrayToString(dst_ip_address))) {// 연결된 proxy이다
-                    responseHeader.arpSrcaddr.macAddr = ARPDlg.MyMacAddress;// 여기다가 내 Mac주소 넣어준다. ***위에서 고쳐야함***
+                    responseHeader.arpSrcaddr.macAddr = ARPDlg.myMacAddress;// 여기다가 내 Mac주소 넣어준다. ***위에서 고쳐야함***
                     responseHeader.arpSrcaddr.ipAddr = dst_ip_address;
                     responseHeader.arpDstaddr.macAddr = src_mac_address;
                     responseHeader.arpDstaddr.ipAddr = src_ip_address;

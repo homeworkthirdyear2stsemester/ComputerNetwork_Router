@@ -21,7 +21,7 @@ public class FileSimplestDlg extends JFrame implements BaseLayer {
     private BaseLayer fileUnderLayer;
     private JButton CacheTableButton;
 
-    public static LayerManager m_LayerMgr = new LayerManager();
+    public static LayerManager mLayerMgr = new LayerManager();
 
     private JTextField ChattingWrite;
 
@@ -135,7 +135,7 @@ public class FileSimplestDlg extends JFrame implements BaseLayer {
         destinationAddressPanel.add(dstIPAddress);
 
 
-        NILayer tempNI = (NILayer) m_LayerMgr.GetLayer("NI");
+        NILayer tempNI = (NILayer) mLayerMgr.getLayer("NI");
         if (tempNI != null) {
             for (int indexOfPcapList = 0; indexOfPcapList < tempNI.m_pAdapterList.size(); indexOfPcapList += 1) {
                 final PcapIf inputPcapIf = tempNI.m_pAdapterList.get(indexOfPcapList);//NILayer의 List를 가져옴
@@ -289,9 +289,9 @@ public class FileSimplestDlg extends JFrame implements BaseLayer {
         @Override
         public void actionPerformed(ActionEvent e) {
             final JFileChooser fileChooser = new JFileChooser();
-            ChatAppLayer tempChatAppLayer = (ChatAppLayer) m_LayerMgr.GetLayer("Chat");
-            EthernetLayer tempEthernetLayer = (EthernetLayer) m_LayerMgr.GetLayer("Ethernet");
-            NILayer tempNILayer = (NILayer) m_LayerMgr.GetLayer("NI");
+            ChatAppLayer tempChatAppLayer = (ChatAppLayer) mLayerMgr.getLayer("Chat");
+            EthernetLayer tempEthernetLayer = (EthernetLayer) mLayerMgr.getLayer("Ethernet");
+            NILayer tempNILayer = (NILayer) mLayerMgr.getLayer("NI");
             if (e.getSource() == Setting_Button) {
                 if (e.getActionCommand().equals("Setting")) {
                     String srcMacNumber = srcAddress.getText();
@@ -299,9 +299,9 @@ public class FileSimplestDlg extends JFrame implements BaseLayer {
                     byte[] srcMacAddressArray = strToByte(srcMacNumber);
                     byte[] srcIPAddressArray = getIPByteArray(srcIPAddress.getText().split("\\."));
                     byte[] dstIPAddressArray = getIPByteArray((dstIPAddress.getText().split("\\.")));//입력된 상대 mac주소 byte 배열로 만들기
-                    ARPDlg.TargetIPAddress = dstIPAddressArray;
-                    ARPDlg.MyIPAddress = srcIPAddressArray;
-                    ARPDlg.MyMacAddress = srcMacAddressArray;
+                    ARPDlg.targetIPAddress = dstIPAddressArray;
+                    ARPDlg.myIPAddress = srcIPAddressArray;
+                    ARPDlg.myMacAddress = srcMacAddressArray;
                     tempNILayer.setAdapterNumber(adapterNumber);//Pcap 객체 생성 및 모든 data를 받을 준비르 하는 메소드 -> receive가 내부에 포함됨
                     ((JButton) e.getSource()).setText("Reset");
                     this.enableAll(false);
@@ -437,18 +437,18 @@ public class FileSimplestDlg extends JFrame implements BaseLayer {
         // TCP, IP, ARP Layer add required
         // *********************************************
 
-        m_LayerMgr.AddLayer(new NILayer("NI"));
-        m_LayerMgr.AddLayer(new EthernetLayer("Ethernet"));
-        m_LayerMgr.AddLayer(new ARPLayer("ARP"));
-        m_LayerMgr.AddLayer(new IPLayer("IP"));
-        m_LayerMgr.AddLayer(new TCPLayer("TCP"));
-        m_LayerMgr.AddLayer(new ChatAppLayer("Chat"));
-        m_LayerMgr.AddLayer(new FileAppLayer("File"));
-        m_LayerMgr.AddLayer(new FileSimplestDlg("FileGUI"));
-        m_LayerMgr.AddLayer(new ARPDlg("ARPGUI"));
-        m_LayerMgr.ConnectLayers(" NI ( *Ethernet ( *IP ( *TCP ( *Chat ( *FileGUI ) *File ( +FileGUI ) *ARPGUI )  -ARP ) *ARP ) )");
+        mLayerMgr.AddLayer(new NILayer("NI"));
+        mLayerMgr.AddLayer(new EthernetLayer("Ethernet"));
+        mLayerMgr.AddLayer(new ARPLayer("ARP"));
+        mLayerMgr.AddLayer(new IPLayer("IP"));
+        mLayerMgr.AddLayer(new TCPLayer("TCP"));
+        mLayerMgr.AddLayer(new ChatAppLayer("Chat"));
+        mLayerMgr.AddLayer(new FileAppLayer("File"));
+        mLayerMgr.AddLayer(new FileSimplestDlg("FileGUI"));
+        mLayerMgr.AddLayer(new ARPDlg("ARPGUI"));
+        mLayerMgr.connectLayers(" NI ( *Ethernet ( *IP ( *TCP ( *Chat ( *FileGUI ) *File ( +FileGUI ) *ARPGUI )  -ARP ) *ARP ) )");
         arpDlg = new ARPDlg();
         arpDlg.setVisible(false);
-        ((FileSimplestDlg) m_LayerMgr.GetLayer("FileGUI")).setFileUnderLayer(m_LayerMgr.GetLayer("File"));
+        ((FileSimplestDlg) mLayerMgr.getLayer("FileGUI")).setFileUnderLayer(mLayerMgr.getLayer("File"));
     }
 }

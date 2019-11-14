@@ -8,7 +8,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
-import static ipc.FileSimplestDlg.m_LayerMgr;
+import static ipc.FileSimplestDlg.mLayerMgr;
 
 public class ARPDlg extends JFrame implements BaseLayer {
     public int nUpperLayerCount = 0;
@@ -17,54 +17,54 @@ public class ARPDlg extends JFrame implements BaseLayer {
     public ArrayList<BaseLayer> p_aUpperLayer = new ArrayList<>();
     private BaseLayer fileUnderLayer;
 
-    private JTextField ChattingWrite;
+    private JTextField chattingWrite;
 
     private ArrayList<MacAndName> storageOfMacList = new ArrayList<>();
 
     private JTextArea IPAddressArea;
     private JPanel contentPane;
     private JButton ARPCacheSendButton;
-    private static JTextArea ARPCacheTextArea;
-    private JButton AllDeleteButton;
-    private JButton ItemDeleteButton;
-    private JButton AddButton;
-    private JTextArea ProxyTextArea;
-    private JButton DeleteButton;
-    private JButton GratuitousARPSendButton;
-    private JTextArea HWAddressArea;
-    private JButton CancelButton;
+    private static JTextArea arpCacheTextArea;
+    private JButton allDeleteButton;
+    private JButton itemDeleteButton;
+    private JButton addButton;
+    private JTextArea proxyTextArea;
+    private JButton deleteButton;
+    private JButton gratuitousARPSendButton;
+    private JTextArea hwAddressArea;
+    private JButton cancelButton;
 
     // Proxy ARP
 
 
     //Base ARP
-    public static byte[] MyIPAddress;
-    public static byte[] MyMacAddress;
-    public static byte[] TargetIPAddress;
+    public static byte[] myIPAddress;
+    public static byte[] myMacAddress;
+    public static byte[] targetIPAddress;
 
 
     public byte[] getMyIPAddress() {
-        return MyIPAddress;
+        return myIPAddress;
     }
 
     public void setMyIPAddress(byte[] myIPAddress) {
-        MyIPAddress = myIPAddress;
+        ARPDlg.myIPAddress = myIPAddress;
     }
 
     public byte[] getMyMacAddress() {
-        return MyMacAddress;
+        return myMacAddress;
     }
 
     public void setMyMacAddress(byte[] myMacAddress) {
-        MyMacAddress = myMacAddress;
+        ARPDlg.myMacAddress = myMacAddress;
     }
 
     public byte[] getTargetIPAddress() {
-        return TargetIPAddress;
+        return targetIPAddress;
     }
 
     public void setTargetIPAddress(byte[] targetIPAddress) {
-        TargetIPAddress = targetIPAddress;
+        ARPDlg.targetIPAddress = targetIPAddress;
     }
 
 
@@ -98,7 +98,7 @@ public class ARPDlg extends JFrame implements BaseLayer {
                 result += key + "          " + "??????????" + "                    " + "Incomplete\n";
             }
         }
-        ARPCacheTextArea.setText(result);
+        arpCacheTextArea.setText(result);
 
     }
 
@@ -131,20 +131,20 @@ public class ARPDlg extends JFrame implements BaseLayer {
         contentPane.add(ARPCachePanel);
         ARPCachePanel.setLayout(null);
 
-        ARPCacheTextArea = new JTextArea();
-        ARPCacheTextArea.setEditable(false);
-        ARPCacheTextArea.setBounds(14, 23, 356, 189);
-        ARPCachePanel.add(ARPCacheTextArea);
+        arpCacheTextArea = new JTextArea();
+        arpCacheTextArea.setEditable(false);
+        arpCacheTextArea.setBounds(14, 23, 356, 189);
+        ARPCachePanel.add(arpCacheTextArea);
 
-        ItemDeleteButton = new JButton("Item Delete");
-        ItemDeleteButton.addActionListener(new setAddressListener());
-        ItemDeleteButton.setBounds(24, 221, 135, 33);
-        ARPCachePanel.add(ItemDeleteButton);
+        itemDeleteButton = new JButton("Item Delete");
+        itemDeleteButton.addActionListener(new setAddressListener());
+        itemDeleteButton.setBounds(24, 221, 135, 33);
+        ARPCachePanel.add(itemDeleteButton);
 
-        AllDeleteButton = new JButton("All Delete");
-        AllDeleteButton.addActionListener(new setAddressListener());
-        AllDeleteButton.setBounds(209, 221, 135, 33);
-        ARPCachePanel.add(AllDeleteButton);
+        allDeleteButton = new JButton("All Delete");
+        allDeleteButton.addActionListener(new setAddressListener());
+        allDeleteButton.setBounds(209, 221, 135, 33);
+        ARPCachePanel.add(allDeleteButton);
 
         JLabel lblNewLabel = new JLabel("IP 주소");
         lblNewLabel.setBounds(14, 316, 62, 18);
@@ -166,20 +166,20 @@ public class ARPDlg extends JFrame implements BaseLayer {
         contentPane.add(ProxyARPPanel);
         ProxyARPPanel.setLayout(null);
 
-        ProxyTextArea = new JTextArea();
-        ProxyTextArea.setEditable(false);
-        ProxyTextArea.setBounds(14, 28, 397, 162);
-        ProxyARPPanel.add(ProxyTextArea);
+        proxyTextArea = new JTextArea();
+        proxyTextArea.setEditable(false);
+        proxyTextArea.setBounds(14, 28, 397, 162);
+        ProxyARPPanel.add(proxyTextArea);
 
-        AddButton = new JButton("Add");
-        AddButton.addActionListener(new setAddressListener());
-        AddButton.setBounds(48, 202, 135, 33);
-        ProxyARPPanel.add(AddButton);
+        addButton = new JButton("Add");
+        addButton.addActionListener(new setAddressListener());
+        addButton.setBounds(48, 202, 135, 33);
+        ProxyARPPanel.add(addButton);
 
-        DeleteButton = new JButton("Delete");
-        DeleteButton.addActionListener(new setAddressListener());
-        DeleteButton.setBounds(236, 202, 135, 33);
-        ProxyARPPanel.add(DeleteButton);
+        deleteButton = new JButton("Delete");
+        deleteButton.addActionListener(new setAddressListener());
+        deleteButton.setBounds(236, 202, 135, 33);
+        ProxyARPPanel.add(deleteButton);
 
         JPanel GratuitousARPPanel = new JPanel();
         GratuitousARPPanel.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Gratuitous ARP",
@@ -192,24 +192,24 @@ public class ARPDlg extends JFrame implements BaseLayer {
         lblHw.setBounds(14, 47, 71, 18);
         GratuitousARPPanel.add(lblHw);
 
-        HWAddressArea = new JTextArea();
-        HWAddressArea.setBounds(99, 45, 202, 24);
-        GratuitousARPPanel.add(HWAddressArea);
+        hwAddressArea = new JTextArea();
+        hwAddressArea.setBounds(99, 45, 202, 24);
+        GratuitousARPPanel.add(hwAddressArea);
 
-        GratuitousARPSendButton = new JButton("Send");
-        GratuitousARPSendButton.addActionListener(new setAddressListener());
-        GratuitousARPSendButton.setBounds(334, 43, 77, 27);
-        GratuitousARPPanel.add(GratuitousARPSendButton);
+        gratuitousARPSendButton = new JButton("Send");
+        gratuitousARPSendButton.addActionListener(new setAddressListener());
+        gratuitousARPSendButton.setBounds(334, 43, 77, 27);
+        GratuitousARPPanel.add(gratuitousARPSendButton);
 
         JButton QuitButton = new JButton("종료");
         QuitButton.addActionListener(e -> System.exit(0));
         QuitButton.setBounds(293, 409, 105, 27);
         contentPane.add(QuitButton);
 
-        CancelButton = new JButton("취소");
-        CancelButton.setBounds(410, 409, 105, 27);
-        CancelButton.addActionListener(new setAddressListener());
-        contentPane.add(CancelButton);
+        cancelButton = new JButton("취소");
+        cancelButton.setBounds(410, 409, 105, 27);
+        cancelButton.addActionListener(new setAddressListener());
+        contentPane.add(cancelButton);
         setVisible(true);
     }
 
@@ -298,31 +298,31 @@ public class ARPDlg extends JFrame implements BaseLayer {
 
                 if (!IPAddress.equals("") && (!ARPLayer.containMacAddress(IPAddressByteArray))) {
                     String newResultInArpCahceText = IPAddress + "          ??????????          Incomplete\n";
-                    ARPCacheTextArea.append(newResultInArpCahceText);
+                    arpCacheTextArea.append(newResultInArpCahceText);
                     IPAddressArea.setText("");
-                    m_LayerMgr.GetLayer("TCP").send(new byte[1], 1);
+                    mLayerMgr.getLayer("TCP").send(new byte[1], 1);
                 } else if (ARPLayer.containMacAddress(IPAddressByteArray)
                         && ARPLayer.arpTable.get(ARPLayer.byteArrayToString(IPAddressByteArray)).length != 1) {
                     byte[] macAddress = ARPLayer.getMacAddress(IPAddressByteArray);
                     IPAddress = IPAddress + "          " + MacToString(macAddress) + "                    Complete\n";
-                    ARPCacheTextArea.append(IPAddress);
+                    arpCacheTextArea.append(IPAddress);
                     IPAddressArea.setText("");
                 }
             }
-            if (e.getSource() == AllDeleteButton) { // 수정
-                if (ARPCacheTextArea.getText().equals("")) {
+            if (e.getSource() == allDeleteButton) { // 수정
+                if (arpCacheTextArea.getText().equals("")) {
                     JOptionPane.showMessageDialog(null, "삭제할 ARP가 존재하지 않습니다.");
                     return;
                 }
                 int result = JOptionPane.showConfirmDialog(null, "모든 Cache를 삭제하시겠습니까?", "Cache Delete",
                         JOptionPane.OK_CANCEL_OPTION);
                 if (result == 0) {
-                    ARPCacheTextArea.setText("");
+                    arpCacheTextArea.setText("");
                     ARPLayer.RemoveAll_Arp();
                 }
             }
-            if (e.getSource() == ItemDeleteButton) { // 수정
-                if (ARPCacheTextArea.getText().equals("")) {
+            if (e.getSource() == itemDeleteButton) { // 수정
+                if (arpCacheTextArea.getText().equals("")) {
                     JOptionPane.showMessageDialog(null, "삭제할 ARP가 존재하지 않습니다.");
                     return;
                 }
@@ -332,7 +332,7 @@ public class ARPDlg extends JFrame implements BaseLayer {
                 if (indexValue != null) {
                     indexValueInteger = Integer.parseInt(indexValue);
                 }
-                String[] ARPCacheList = ARPCacheTextArea.getText().split("\n");
+                String[] ARPCacheList = arpCacheTextArea.getText().split("\n");
                 String IPAddress = ARPCacheList[indexValueInteger - 1].split("          ")[0];
                 String result = "";
                 for (int i = 0; i < ARPCacheList.length; i++) {
@@ -340,11 +340,11 @@ public class ARPDlg extends JFrame implements BaseLayer {
                         result = result + ARPCacheList[i] + "\n";
                     }
                 }
-                ARPCacheTextArea.setText(result);
+                arpCacheTextArea.setText(result);
                 ARPLayer.Remove_Arp(getIPByteArray(IPAddress.split("\\.")));
             }
-            if (e.getSource() == DeleteButton) { //수정
-                if (ProxyTextArea.getText().equals("")) {
+            if (e.getSource() == deleteButton) { //수정
+                if (proxyTextArea.getText().equals("")) {
                     JOptionPane.showMessageDialog(null, "삭제할 Proxy가 존재하지 않습니다.");
                     return;
                 }
@@ -354,7 +354,7 @@ public class ARPDlg extends JFrame implements BaseLayer {
                 if (indexValue != null) {
                     indexValueInteger = Integer.parseInt(indexValue);
                 }
-                String[] ProxyData = ProxyTextArea.getText().split("\n");
+                String[] ProxyData = proxyTextArea.getText().split("\n");
                 String result = "";
                 for (int i = 0; i < ProxyData.length; i++) {
                     if (i != indexValueInteger - 1) {
@@ -364,25 +364,25 @@ public class ARPDlg extends JFrame implements BaseLayer {
                         ARPLayer.Remove_Proxy(getMacByteArray(targetName));
                     }
                 }
-                ProxyTextArea.setText(result);
+                proxyTextArea.setText(result);
             }
-            if (e.getSource() == AddButton) {
+            if (e.getSource() == addButton) {
                 new ProxyDlg();
             }
-            if (e.getSource() == GratuitousARPSendButton) {
-                String HWAddress = HWAddressArea.getText();
+            if (e.getSource() == gratuitousARPSendButton) {
+                String HWAddress = hwAddressArea.getText();
                 if (HWAddress.equals("")) {
                     JOptionPane.showMessageDialog(null, "정확한 주소를 입력해주세요.");
                 } else {
                     GratuitousAddress = getMacByteArray(HWAddress);
-                    MyMacAddress = GratuitousAddress;
+                    myMacAddress = GratuitousAddress;
                     FileSimplestDlg.srcAddress.setText(HWAddress);
 
-                    m_LayerMgr.GetLayer("TCP").send(new byte[1], -1);
-                    HWAddressArea.setText("");
+                    mLayerMgr.getLayer("TCP").send(new byte[1], -1);
+                    hwAddressArea.setText("");
                 }
             }
-            if (e.getSource() == CancelButton) {
+            if (e.getSource() == cancelButton) {
                 setVisible(false);
             }
         }
@@ -432,7 +432,7 @@ public class ARPDlg extends JFrame implements BaseLayer {
                     if (DeviceName.equals("") || IPName.equals("") || EthernetName.equals("")) {
                         JOptionPane.showMessageDialog(null, "올바른 정보를 입력해주세요");
                     } else {
-                        ProxyTextArea.append(DeviceName + "       " + IPName + "       " + EthernetName + "\n");
+                        proxyTextArea.append(DeviceName + "       " + IPName + "       " + EthernetName + "\n");
                         byte[] IPArray = getIPByteArray(IPName.split("\\."));
                         byte[] EthernetArray = getMacByteArray(EthernetName);
                         DeviceText.setText("");
@@ -447,14 +447,13 @@ public class ARPDlg extends JFrame implements BaseLayer {
             contentPane.add(OkButton);
 
             JButton CancelButton = new JButton("Cancel");
-            CancelButton.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    DeviceText.setText("");
-                    IPText.setText("");
-                    EthernetText.setText("");
-                    setVisible(false);
-                }
+            CancelButton.addActionListener(e -> {
+                DeviceText.setText("");
+                IPText.setText("");
+                EthernetText.setText("");
+                setVisible(false);
             });
+
             CancelButton.setBounds(252, 219, 105, 27);
             contentPane.add(CancelButton);
 

@@ -21,7 +21,6 @@ public class NILayer implements BaseLayer {
     public List<PcapIf> m_pAdapterList;//네트워크 인터페이스 목록
     StringBuilder errbuf = new StringBuilder();//에러 버퍼
     private Receive_Thread thread;
-    private Receive_Thread fileThread;
 
     public void setThreadIsRun(boolean isRun) {
         this.thread.setIsRun(isRun);
@@ -59,13 +58,11 @@ public class NILayer implements BaseLayer {
 
     @Override
     public String getLayerName() {
-        // TODO Auto-generated method stub
         return pLayerName;
     }
 
     @Override
     public BaseLayer getUnderLayer() {
-        // TODO Auto-generated method stub
         if (p_UnderLayer == null)
             return null;
         return p_UnderLayer;
@@ -73,7 +70,6 @@ public class NILayer implements BaseLayer {
 
     @Override
     public BaseLayer getUpperLayer(int nindex) {
-        // TODO Auto-generated method stub
         if (nindex < 0 || nindex > nUpperLayerCount || nUpperLayerCount < 0)
             return null;
         return p_aUpperLayer.get(nindex);
@@ -81,7 +77,6 @@ public class NILayer implements BaseLayer {
 
     @Override
     public void setUnderLayer(BaseLayer pUnderLayer) {
-        // TODO Auto-generated method stub
         if (pUnderLayer == null)
             return;
         this.p_UnderLayer = pUnderLayer;
@@ -89,7 +84,6 @@ public class NILayer implements BaseLayer {
 
     @Override
     public void setUpperLayer(BaseLayer pUpperLayer) {
-        // TODO Auto-generated method stub
         if (pUpperLayer == null)
             return;
         this.p_aUpperLayer.add(nUpperLayerCount++, pUpperLayer);//layer추가
