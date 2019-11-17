@@ -32,11 +32,13 @@ public class NILayer implements BaseLayer {
     }
 
     public static List<PcapIf> getAdapterListInstance() { // Mac 주소를 가져와 준다. -> GUI Layer에서 호출
-        if (NILayer.adapterList == null) {
-            NILayer.adapterList = new ArrayList<>();
-        }
-        if (NILayer.adapterList.isEmpty()) {
-            NILayer.setAdapterList(); // mac주소 리스트를 받아와준다
+        synchronized (List.class) { // 변수에 대한 쓰레드 제어
+            if (NILayer.adapterList == null) {
+                NILayer.adapterList = new ArrayList<>();
+            }
+            if (NILayer.adapterList.isEmpty()) {
+                NILayer.setAdapterList(); // mac주소 리스트를 받아와준다
+            }
         }
 
         return NILayer.adapterList;
