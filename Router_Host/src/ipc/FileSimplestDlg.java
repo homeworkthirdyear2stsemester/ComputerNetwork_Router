@@ -137,8 +137,8 @@ public class FileSimplestDlg extends JFrame implements BaseLayer {
 
         NILayer tempNI = (NILayer) mLayerMgr.getLayer("NI");
         if (tempNI != null) {
-            for (int indexOfPcapList = 0; indexOfPcapList < tempNI.m_pAdapterList.size(); indexOfPcapList += 1) {
-                final PcapIf inputPcapIf = tempNI.m_pAdapterList.get(indexOfPcapList);//NILayer의 List를 가져옴
+            for (int indexOfPcapList = 0; indexOfPcapList < NILayer.adapterList.size(); indexOfPcapList += 1) {
+                final PcapIf inputPcapIf = NILayer.adapterList.get(indexOfPcapList);//NILayer의 List를 가져옴
                 byte[] macAdress = null;//객체 지정
                 try {
                     macAdress = inputPcapIf.getHardwareAddress();

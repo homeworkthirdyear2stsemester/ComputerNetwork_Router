@@ -15,12 +15,12 @@ public class NILayer implements BaseLayer {
     public BaseLayer p_UnderLayer = null;
     public ArrayList<BaseLayer> p_aUpperLayer = new ArrayList<>();
 
-    int m_iNumAdapter;//네트워크 어뎁터 인덱스
+    private int adapterNumber;//네트워크 어뎁터 인덱스
     public Pcap m_AdapterObject;//네트워크 어뎁터 객체
     public PcapIf device;//네트워크 인터페이스 객체
-    public List<PcapIf> m_pAdapterList;//네트워크 인터페이스 목록
-    StringBuilder errbuf = new StringBuilder();//에러 버퍼
-    private Receive_Thread thread;
+    public static List<PcapIf> adapterList;//네트워크 인터페이스 목록
+    static StringBuilder errbuf = new StringBuilder();//에러 버퍼
+    private ReceiveThread thread;
 
     public void setThreadIsRun(boolean isRun) {
         this.thread.setIsRun(isRun);
@@ -28,32 +28,40 @@ public class NILayer implements BaseLayer {
 
     public NILayer(String pName) {
         this.pLayerName = pName;
-        m_pAdapterList = new ArrayList<>();//Pcap을 담는 List
-        m_iNumAdapter = 0;
-        this.SetAdapterList();
+        adapterNumber = 0;
     }
 
-    public void SetAdapterList() {
-        int r = Pcap.findAllDevs(m_pAdapterList, errbuf);
+    public static List<PcapIf> getAdapterListInstance() { // Mac 주소를 가져와 준다. -> GUI Layer에서 호출
+        if (NILayer.adapterList == null) {
+            NILayer.adapterList = new ArrayList<>();
+        }
+        if (NILayer.adapterList.isEmpty()) {
+            NILayer.setAdapterList(); // mac주소 리스트를 받아와준다
+        }
+
+        return NILayer.adapterList;
+    }
+
+    public static void setAdapterList() {
+        int r = Pcap.findAllDevs(adapterList, errbuf);
         //현재 컴퓨터에 존재하는 모든 네트워크 어뎁터 목록 가져오기
-        if (r == Pcap.NOT_OK || m_pAdapterList.isEmpty()) {
+        if (r == Pcap.NOT_OK || adapterList.isEmpty()) {
             System.err.printf("Can't read list of devices, error is %s", errbuf.toString());
-            return;
         }//네트워크 어뎁터가 하나도 존재하지 않을 경우 에러 처리
     }
 
-    public void setAdapterNumber(int iNum) {
-        this.m_iNumAdapter = iNum;//어뎁터 번호 초기화
-        this.PacketStartDriver();//패킷 드라이버 시작 함수
+    public void setAdapterNumber(int iNum) { // combo box에서 가져온 값을 여기 넣는다
+        this.adapterNumber = iNum;//어뎁터 번호 초기화
+        this.packetStartDriver();//패킷 드라이버 시작 함수
         this.receive();//패킷 수신함수
     }
 
-    public void PacketStartDriver() {//패킷 드라이버 시작 함수
+    private void packetStartDriver() {//패킷 드라이버 시작 함수
         int snaplen = 64 * 1024;//팻킷 캡처 길이
         int flags = Pcap.MODE_PROMISCUOUS;//모든 패킷 캡처
         int timeout = 10 * 1000;//패킷 캡처 시간
-        this.m_AdapterObject = Pcap.openLive(this.m_pAdapterList.get(this.m_iNumAdapter).getName(),
-                snaplen, flags, timeout, this.errbuf);//pcap 작동 시작
+        this.m_AdapterObject = Pcap.openLive(NILayer.adapterList.get(this.adapterNumber).getName(),
+                snaplen, flags, timeout, NILayer.errbuf);//pcap 작동 시작
     }
 
     @Override
@@ -98,7 +106,7 @@ public class NILayer implements BaseLayer {
 
     @Override
     public boolean receive() {//쓰레드 객체 생성
-        thread = new Receive_Thread(this.m_AdapterObject, this.getUpperLayer(0));
+        thread = new ReceiveThread(this.m_AdapterObject, this.getUpperLayer(0));
         Thread obj = new Thread(thread);
         obj.start();
 
@@ -115,17 +123,17 @@ public class NILayer implements BaseLayer {
     }
 }
 
-class Receive_Thread implements Runnable {
-    byte[] data;
-    Pcap AdapterObject;
-    BaseLayer UpperLayer;
+class ReceiveThread implements Runnable {
+    private byte[] data;
+    private Pcap AdapterObject;
+    private BaseLayer UpperLayer;
     private boolean isRun = true;
 
-    public void setIsRun(boolean isRun) {
+    void setIsRun(boolean isRun) {
         this.isRun = isRun;
     }
 
-    public Receive_Thread(Pcap m_AdapterObject, BaseLayer m_UpperLayer) {
+    ReceiveThread(Pcap m_AdapterObject, BaseLayer m_UpperLayer) {
         this.AdapterObject = m_AdapterObject;
         this.UpperLayer = m_UpperLayer;
     }//객체 초기화
@@ -135,13 +143,12 @@ class Receive_Thread implements Runnable {
         while (true) {
             if (!isRun) {
                 System.out.println("Thread is terminated");
+
                 return;
             }
-            PcapPacketHandler<String> jpacketHandler = new PcapPacketHandler<String>() {
-                public void nextPacket(PcapPacket packet, String user) {
-                    data = packet.getByteArray(0, packet.size());//패킷의 데이터 바이트배열와 패킷 크기를 알아냄
-                    UpperLayer.receive(data);//상위 객체의 receive호출
-                }
+            PcapPacketHandler<String> jpacketHandler = (packet, user) -> {
+                data = packet.getByteArray(0, packet.size());//패킷의 데이터 바이트배열와 패킷 크기를 알아냄
+                UpperLayer.receive(data);//상위 객체의 receive호출
             };
             AdapterObject.loop(10000, jpacketHandler, "");
         }
