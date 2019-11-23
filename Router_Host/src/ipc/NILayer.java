@@ -185,6 +185,31 @@ class MacData {
         this.macName = macName;
         this.portNumber = portNumberOfMac;
     }
+
+    public byte[] stringMacToByteMacArray(String macAddress) {
+        byte[] hexTobyteArrayMacAdress = new byte[6];
+        String changeMacAddress = macAddress.replaceAll(":", "");
+        for (int index = 0; index < 12; index += 2) {
+            hexTobyteArrayMacAdress[index / 2] = (byte) ((Character.digit(changeMacAddress.charAt(index), 16) << 4)
+                    + Character.digit(changeMacAddress.charAt(index + 1), 16));
+        }
+        return hexTobyteArrayMacAdress;
+    }
+
+    public String byteMacArrayToStringMac(byte[] mac) {
+        final StringBuilder sb = new StringBuilder();
+
+        for (byte nowByte : mac) {
+            if (sb.length() != 0) {
+                sb.append(":");
+            }
+            if (0 <= nowByte && nowByte < 16) {
+                sb.append("0");
+            }
+            sb.append(Integer.toHexString((nowByte < 0) ? nowByte + 256 : nowByte).toUpperCase());
+        }
+        return sb.toString();
+    }
 }
 
 
