@@ -43,6 +43,7 @@ public class NILayer implements BaseLayer {
 
     public static List<MacData> getMacAddressFromAdapter() {
         if (NILayer.macAddressData == null) {
+            macAddressData = new ArrayList<>();
             NILayer.getAdapterListInstance();
             for (int indexOfPcapList = 0; indexOfPcapList < NILayer.adapterList.size(); indexOfPcapList += 1) {
                 final PcapIf inputPcapIf = NILayer.adapterList.get(indexOfPcapList);//NILayer의 List를 가져옴
