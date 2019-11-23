@@ -289,7 +289,7 @@ public class FileSimplestDlg extends JFrame implements BaseLayer {
         @Override
         public void actionPerformed(ActionEvent e) {
             final JFileChooser fileChooser = new JFileChooser();
-            ChatAppLayer tempChatAppLayer = (ChatAppLayer) mLayerMgr.getLayer("Chat");
+
             EthernetLayer tempEthernetLayer = (EthernetLayer) mLayerMgr.getLayer("Ethernet");
             NILayer tempNILayer = (NILayer) mLayerMgr.getLayer("NI");
             if (e.getSource() == Setting_Button) {
@@ -328,11 +328,11 @@ public class FileSimplestDlg extends JFrame implements BaseLayer {
                     return;
                 }
                 byte[] arrayOfByte = sendMessage.getBytes();
-                if (tempChatAppLayer.send(arrayOfByte, arrayOfByte.length)) {
-                    ChattingArea.append("[SEND] : " + sendMessage + "\n");
-                } else {
-                    ChattingArea.append("[Error] : send reject\n");
-                }
+//                if (tempChatAppLayer.send(arrayOfByte, arrayOfByte.length)) {
+//                    ChattingArea.append("[SEND] : " + sendMessage + "\n");
+//                } else {
+//                    ChattingArea.append("[Error] : send reject\n");
+//                }
                 ChattingArea.selectAll();
                 ChattingArea.setCaretPosition(ChattingArea.getDocument().getLength());
                 ChattingWrite.selectAll();
@@ -432,23 +432,5 @@ public class FileSimplestDlg extends JFrame implements BaseLayer {
         }
     }
 
-    public static void main(String[] args) {
-        // *********************************************
-        // TCP, IP, ARP Layer add required
-        // *********************************************
-
-        mLayerMgr.AddLayer(new NILayer("NI"));
-        mLayerMgr.AddLayer(new EthernetLayer("Ethernet"));
-        mLayerMgr.AddLayer(new ARPLayer("ARP"));
-        mLayerMgr.AddLayer(new IPLayer("IP"));
-        mLayerMgr.AddLayer(new TCPLayer("TCP"));
-        mLayerMgr.AddLayer(new ChatAppLayer("Chat"));
-        mLayerMgr.AddLayer(new FileAppLayer("File"));
-        mLayerMgr.AddLayer(new FileSimplestDlg("FileGUI"));
-        mLayerMgr.AddLayer(new ARPDlg("ARPGUI"));
-        mLayerMgr.connectLayers(" NI ( *Ethernet ( *IP ( *TCP ( *Chat ( *FileGUI ) *File ( +FileGUI ) *ARPGUI )  -ARP ) *ARP ) )");
-        arpDlg = new ARPDlg();
-        arpDlg.setVisible(false);
-        ((FileSimplestDlg) mLayerMgr.getLayer("FileGUI")).setFileUnderLayer(mLayerMgr.getLayer("File"));
-    }
+    
 }
