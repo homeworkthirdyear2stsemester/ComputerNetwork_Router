@@ -1,4 +1,4 @@
-package ipc;
+﻿package ipc;
 
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
@@ -106,7 +106,9 @@ public class RouterDlg extends JFrame {
 		arpTablePanel.add(lblNewLabel_1);
 
 		arpDeleteBtn = new JButton("Delete");
+		arpDeleteBtn.addActionListener(new setAddressListener());
 		arpDeleteBtn.setBounds(128, 234, 185, 30);
+
 		arpTablePanel.add(arpDeleteBtn);
 
 		JScrollPane scrollPane_1 = new JScrollPane();
@@ -138,6 +140,7 @@ public class RouterDlg extends JFrame {
 
 		proxyDeleteBtn = new JButton("Delete");
 		proxyDeleteBtn.setBounds(248, 182, 185, 30);
+		proxyDeleteBtn.addActionListener(new setAddressListener());
 		proxyTablePanel.add(proxyDeleteBtn);
 
 		JScrollPane scrollPane_2 = new JScrollPane();
@@ -154,6 +157,16 @@ public class RouterDlg extends JFrame {
 	}
 
 	public class setAddressListener implements ActionListener {
+		private void deleteTableRow(JTable target) {
+			String indexValue = JOptionPane.showInputDialog(null, "삭제할 Cache의 인덱스를 입력해주세요(Index : 1부터 시작)",
+					"Cache Delete", JOptionPane.OK_CANCEL_OPTION);
+			int indexValueInteger = 0;
+			if (indexValue != null) {
+				indexValueInteger = Integer.parseInt(indexValue);
+			}
+			DefaultTableModel model = (DefaultTableModel) target.getModel();
+			model.removeRow(indexValueInteger - 1);
+		}
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
@@ -163,14 +176,11 @@ public class RouterDlg extends JFrame {
 			} else if (e.getSource() == proxyAddBtn) {
 				new ProxyDlg();
 			} else if (e.getSource() == routingDeleteBtn) {
-				String indexValue = JOptionPane.showInputDialog(null, "삭제할 Cache의 인덱스를 입력해주세요(Index : 1부터 시작)",
-						"Cache Delete", JOptionPane.OK_CANCEL_OPTION);
-				int indexValueInteger = 0;
-				if (indexValue != null) {
-					indexValueInteger = Integer.parseInt(indexValue);
-				}
-				DefaultTableModel model = (DefaultTableModel) routingTable.getModel();
-				model.removeRow(indexValueInteger - 1);
+				deleteTableRow(routingTable);
+			} else if (e.getSource() == arpDeleteBtn) {
+				deleteTableRow(arpTable);
+			} else if (e.getSource() == proxyDeleteBtn) {
+				deleteTableRow(proxyTable);
 			}
 		}
 
