@@ -47,16 +47,16 @@ public class NILayer implements BaseLayer {
             NILayer.getAdapterListInstance();
             for (int indexOfPcapList = 0; indexOfPcapList < NILayer.adapterList.size(); indexOfPcapList += 1) {
                 final PcapIf inputPcapIf = NILayer.adapterList.get(indexOfPcapList);//NILayer의 List를 가져옴
-                byte[] macAdress = null;//객체 지정
+                byte[] macAddress = null;//객체 지정
                 try {
-                    macAdress = inputPcapIf.getHardwareAddress();
+                    macAddress = inputPcapIf.getHardwareAddress();
                 } catch (IOException e) {
                     System.out.println("Address error is happen");
                 }//에러 표출
-                if (macAdress == null) {
+                if (macAddress == null) {
                     continue;
                 }
-                NILayer.macAddressData.add(new MacData(macAdress, inputPcapIf.getDescription(), indexOfPcapList));
+                NILayer.macAddressData.add(new MacData(macAddress, inputPcapIf.getDescription() + indexOfPcapList, indexOfPcapList));
             }
         }
 
@@ -187,7 +187,7 @@ class MacData {
         this.portNumber = portNumberOfMac;
     }
 
-    public byte[] stringMacToByteMacArray(String macAddress) {
+    public static byte[] stringMacToByteMacArray(String macAddress) {
         byte[] hexTobyteArrayMacAdress = new byte[6];
         String changeMacAddress = macAddress.replaceAll(":", "");
         for (int index = 0; index < 12; index += 2) {
@@ -197,7 +197,7 @@ class MacData {
         return hexTobyteArrayMacAdress;
     }
 
-    public String byteMacArrayToStringMac(byte[] mac) {
+    public static String byteMacArrayToStringMac(byte[] mac) {
         final StringBuilder sb = new StringBuilder();
 
         for (byte nowByte : mac) {
