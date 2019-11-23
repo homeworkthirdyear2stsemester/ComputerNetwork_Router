@@ -30,6 +30,7 @@ public class RouterDlg extends JFrame {
 	private JTextArea rightMacTextArea;
 	private JButton leftConnectorBtn;
 	private JButton rightConnectorBtn;
+	private List<MacData> adapterList;
 
 	public static LayerManager mLayerMgr = new LayerManager();
 
@@ -158,12 +159,14 @@ public class RouterDlg extends JFrame {
 		lblNewLabel_2.setFont(new Font("굴림", Font.BOLD, 20));
 		lblNewLabel_2.setBounds(14, 12, 286, 31);
 		panel.add(lblNewLabel_2);
-		List<MacData> adapterList = NILayer.getMacAddressFromAdapter();
+
+		adapterList = NILayer.getMacAddressFromAdapter();
 		String[] macNameList = new String[adapterList.size()];
-		for(int i = 0; i < macNameList.length; i++) {
+		for (int i = 0; i < macNameList.length; i++) {
 			macNameList[i] = adapterList.get(i).macName;
+			System.out.println("macName : " + macNameList[i] + "address : "
+					+ MacData.byteMacArrayToStringMac(adapterList.get(i).macAddress));
 		}
-		
 
 		leftComboBox = new JComboBox(macNameList);
 		leftComboBox.setBounds(14, 55, 286, 31);
@@ -192,6 +195,7 @@ public class RouterDlg extends JFrame {
 
 		leftConnectorBtn = new JButton("Setting");
 		leftConnectorBtn.setBounds(60, 196, 185, 30);
+		leftConnectorBtn.addActionListener(new setAddressListener());
 		panel.add(leftConnectorBtn);
 
 		JLabel lblRightconnector = new JLabel("RightConnector");
@@ -200,8 +204,9 @@ public class RouterDlg extends JFrame {
 		lblRightconnector.setBounds(14, 259, 286, 31);
 		panel.add(lblRightconnector);
 
-		rightComboBox = new JComboBox();
+		rightComboBox = new JComboBox(macNameList);
 		rightComboBox.setBounds(14, 302, 286, 31);
+		rightComboBox.addActionListener(new setAddressListener());
 		panel.add(rightComboBox);
 
 		rightIPTextArea = new JTextArea();
@@ -226,6 +231,7 @@ public class RouterDlg extends JFrame {
 
 		rightConnectorBtn = new JButton("Setting");
 		rightConnectorBtn.setBounds(60, 443, 185, 30);
+		rightConnectorBtn.addActionListener(new setAddressListener());
 		panel.add(rightConnectorBtn);
 	}
 
@@ -295,6 +301,38 @@ public class RouterDlg extends JFrame {
 				deleteTableRow(arpTable);
 			} else if (e.getSource() == proxyDeleteBtn) {
 				deleteTableRow(proxyTable);
+			} else if (e.getSource() == leftComboBox) {
+				int index = leftComboBox.getSelectedIndex();
+				leftMacTextArea.setText(MacData.byteMacArrayToStringMac(adapterList.get(index).macAddress));
+			} else if (e.getSource() == rightComboBox) {
+				int index = rightComboBox.getSelectedIndex();
+				rightMacTextArea.setText(MacData.byteMacArrayToStringMac(adapterList.get(index).macAddress));
+			} else if (e.getSource() == leftConnectorBtn) {
+				if (e.getActionCommand().equals("Setting")) {
+					String srcMacString = leftMacTextArea.getText();
+					String srcIPString = leftIPTextArea.getText();
+
+					leftConnectorBtn.setText("Reset");
+					leftMacTextArea.enable(false);
+					leftIPTextArea.enable(false);
+				} else {
+					leftMacTextArea.enable(true);
+					leftIPTextArea.enable(true);
+					leftConnectorBtn.setText("Setting");
+				}
+			} else if (e.getSource() == rightConnectorBtn) {
+				if (e.getActionCommand().equals("Setting")) {
+					String srcMacString = rightMacTextArea.getText();
+					String srcIPString = rightIPTextArea.getText();
+
+					rightConnectorBtn.setText("Reset");
+					rightMacTextArea.enable(false);
+					rightIPTextArea.enable(false);
+				} else {
+					rightMacTextArea.enable(true);
+					rightIPTextArea.enable(true);
+					rightConnectorBtn.setText("Setting");
+				}
 			}
 		}
 
