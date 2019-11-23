@@ -1,27 +1,13 @@
 ﻿package ipc;
 
-import java.awt.BorderLayout;
-import java.awt.EventQueue;
-
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-
-import java.awt.Font;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.HashMap;
 import java.util.Map;
-
-import javax.swing.SwingConstants;
-import javax.swing.JTable;
-import javax.swing.JTextArea;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
 
 public class RouterDlg extends JFrame {
 
@@ -36,43 +22,6 @@ public class RouterDlg extends JFrame {
     private JButton proxyDeleteBtn;
 
     public static LayerManager mLayerMgr = new LayerManager();
-
-    private void clickTheData() {
-        Map<String, BaseLayer> layerTable = new HashMap<>();
-
-        LayerManager.NUMBER_OF_NI_LAYER++;
-        BaseLayer newLayer = new NILayer("NI_" + LayerManager.NUMBER_OF_NI_LAYER);
-        mLayerMgr.AddLayer(newLayer);
-        layerTable.put("NI", newLayer);
-
-        LayerManager.NUMBER_OF_ETHERNET_LAYER++;
-        newLayer = new EthernetLayer("Ethernet_" + LayerManager.NUMBER_OF_ETHERNET_LAYER);
-        mLayerMgr.AddLayer(newLayer);
-        layerTable.put("Ethernet", newLayer);
-
-        LayerManager.NUMBER_OF_IP_LAYER++;
-        newLayer = new IPLayer("IP_" + LayerManager.NUMBER_OF_IP_LAYER);
-        mLayerMgr.AddLayer(newLayer);
-        layerTable.put("IP", newLayer);
-
-        connectAllLayers(layerTable); // connect
-    }
-
-    /**
-     * @param layerTable : k - layer name, v - layer object
-     */
-    private void connectAllLayers(Map<String, BaseLayer> layerTable) {
-        BaseLayer ni = layerTable.get("NI");
-        BaseLayer ethernet = layerTable.get("Ethernet");
-        BaseLayer arp = mLayerMgr.getLayer("ARP");
-        BaseLayer ip = layerTable.get("IP");
-
-        ni.setUpperUnderLayer(ethernet); // connect ethernet and ni
-        ethernet.setUpperUnderLayer(arp);
-        arp.setUpperUnderLayer(ip);
-        ethernet.setUpperLayer(ip);
-    }
-
 
     /**
      * Launch the application.
@@ -198,6 +147,43 @@ public class RouterDlg extends JFrame {
     }
 
     public class setAddressListener implements ActionListener {
+
+        private void clickTheData() {
+            Map<String, BaseLayer> layerTable = new HashMap<>();
+
+            LayerManager.NUMBER_OF_NI_LAYER++;
+            BaseLayer newLayer = new NILayer("NI_" + LayerManager.NUMBER_OF_NI_LAYER);
+            mLayerMgr.AddLayer(newLayer);
+            layerTable.put("NI", newLayer);
+
+            LayerManager.NUMBER_OF_ETHERNET_LAYER++;
+            newLayer = new EthernetLayer("Ethernet_" + LayerManager.NUMBER_OF_ETHERNET_LAYER);
+            mLayerMgr.AddLayer(newLayer);
+            layerTable.put("Ethernet", newLayer);
+
+            LayerManager.NUMBER_OF_IP_LAYER++;
+            newLayer = new IPLayer("IP_" + LayerManager.NUMBER_OF_IP_LAYER);
+            mLayerMgr.AddLayer(newLayer);
+            layerTable.put("IP", newLayer);
+
+            connectAllLayers(layerTable); // connect
+        }
+
+        /**
+         * @param layerTable : k - layer name, v - layer object
+         */
+        private void connectAllLayers(Map<String, BaseLayer> layerTable) {
+            BaseLayer ni = layerTable.get("NI");
+            BaseLayer ethernet = layerTable.get("Ethernet");
+            BaseLayer arp = mLayerMgr.getLayer("ARP");
+            BaseLayer ip = layerTable.get("IP");
+
+            ni.setUpperUnderLayer(ethernet); // connect ethernet and ni
+            ethernet.setUpperUnderLayer(arp);
+            arp.setUpperUnderLayer(ip);
+            ethernet.setUpperLayer(ip);
+        }
+
         private void deleteTableRow(JTable target) {
             String indexValue = JOptionPane.showInputDialog(null, "삭제할 Cache의 인덱스를 입력해주세요(Index : 1부터 시작)",
                     "Cache Delete", JOptionPane.OK_CANCEL_OPTION);
@@ -211,7 +197,6 @@ public class RouterDlg extends JFrame {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            // TODO Auto-generated method stub
             if (e.getSource() == routingAddBtn) {
                 new RouterAddDlg();
             } else if (e.getSource() == proxyAddBtn) {
@@ -230,22 +215,6 @@ public class RouterDlg extends JFrame {
     public class RouterAddDlg extends JFrame {
 
         private JPanel contentPane;
-
-        /**
-         * Launch the application.
-         */
-//		public static void main(String[] args) {
-//			EventQueue.invokeLater(new Runnable() {
-//				public void run() {
-//					try {
-//						test frame = new test();
-//						frame.setVisible(true);
-//					} catch (Exception e) {
-//						e.printStackTrace();
-//					}
-//				}
-//			});
-//		}
 
         /**
          * Create the frame.
