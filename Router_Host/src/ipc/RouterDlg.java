@@ -1,4 +1,4 @@
-﻿package ipc;
+package ipc;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -27,16 +27,9 @@ public class RouterDlg extends JFrame {
      * Launch the application.
      */
     public static void main(String[] args) {
-        EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                try {
-                    RouterDlg frame = new RouterDlg();
-                    frame.setVisible(true);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
+        mLayerMgr.AddLayer(new ARPLayer("ARP"));
+        RouterDlg frame = new RouterDlg();
+        frame.setVisible(true);
     }
 
     /**

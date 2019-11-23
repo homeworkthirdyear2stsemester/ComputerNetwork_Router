@@ -156,8 +156,7 @@ public class EthernetLayer implements BaseLayer {
         if (!this.isMyAddress(input) && (this.isBoardData(input) || this.isMyConnectionData(input))
                 && input[12] == 0x08) {//브로드이거나 나한테
             byte[] removedHeaderData = this.removeCappHeaderData(input);
-            if (input[13] == 0x08) {//ip
-                System.out.println(input);
+            if (input[13] == 0x00) {//ip
                 return this.getUpperLayer(0).receive(removedHeaderData); // IP Layer
             } else if (input[13] == 0x06) {//arp
                 return this.getUpperLayer(1).receive(removedHeaderData); // ARP Layer
@@ -168,9 +167,7 @@ public class EthernetLayer implements BaseLayer {
 
     private byte[] removeCappHeaderData(byte[] input) {//header 제거
         byte[] removeCappHeader = new byte[input.length - 14];
-        for (int index = 0; index < removeCappHeader.length; index++) {
-            removeCappHeader[index] = input[index + 14];
-        }
+        System.arraycopy(input, 14, removeCappHeader, 0, removeCappHeader.length);
 
         return removeCappHeader;
     }
