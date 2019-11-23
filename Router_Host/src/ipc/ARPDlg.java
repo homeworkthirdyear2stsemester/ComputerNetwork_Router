@@ -8,7 +8,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
-import static ipc.FileSimplestDlg.mLayerMgr;
+//import static ipc.FileSimplestDlg.mLayerMgr;
 
 public class ARPDlg extends JFrame implements BaseLayer {
     public int nUpperLayerCount = 0;
@@ -375,7 +375,7 @@ public class ARPDlg extends JFrame implements BaseLayer {
                 } else {
                     GratuitousAddress = getMacByteArray(HWAddress);
                     myMacAddress = GratuitousAddress;
-                    FileSimplestDlg.srcAddress.setText(HWAddress);
+//                    FileSimplestDlg.srcAddress.setText(HWAddress);
 
                     //mLayerMgr.getLayer("TCP").send(new byte[1], -1); --> 이전 ARP Send
                     hwAddressArea.setText("");
@@ -462,11 +462,11 @@ public class ARPDlg extends JFrame implements BaseLayer {
     
     public static void main(String[] args) {
 
-        mLayerMgr.AddLayer(new NILayer("NI"));
-        mLayerMgr.AddLayer(new EthernetLayer("Ethernet"));
-        mLayerMgr.AddLayer(new ARPLayer("ARP"));
-        mLayerMgr.AddLayer(new IPLayer("IP"));
-        mLayerMgr.AddLayer(new ARPDlg("ARPGUI"));
+//        mLayerMgr.AddLayer(new NILayer("NI"));
+//        mLayerMgr.AddLayer(new EthernetLayer("Ethernet"));
+//        mLayerMgr.AddLayer(new ARPLayer("ARP"));
+//        mLayerMgr.AddLayer(new IPLayer("IP"));
+//        mLayerMgr.AddLayer(new ARPDlg("ARPGUI"));
         //mLayerMgr.connectLayers(" NI ( *Ethernet ( *IP *File ( +FileGUI ) *ARPGUI  -ARP *ARP ) )"); --> 연결 수정
         ARPDlg arpDlg = new ARPDlg();
         arpDlg.setVisible(true);
