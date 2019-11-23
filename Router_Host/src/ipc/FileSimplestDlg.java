@@ -418,19 +418,5 @@ public class FileSimplestDlg extends JFrame implements BaseLayer {
         pUULayer.setUnderLayer(this);
     }
 
-    private class MacAndName {
-        public byte[] macAddress;
-        public String macName;
-        public String macAddressStr;
-        public int portNumber;
 
-        public MacAndName(byte[] macAddress, String macName, String macAddressStr, int portNumberOfMac) {
-            this.macAddress = macAddress;
-            this.macName = macName;
-            this.macAddressStr = macAddressStr;
-            this.portNumber = portNumberOfMac;
-        }
-    }
-
-    
 }

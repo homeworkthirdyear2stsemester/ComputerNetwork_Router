@@ -2,9 +2,9 @@ package ipc;
 
 import org.jnetpcap.Pcap;
 import org.jnetpcap.PcapIf;
-import org.jnetpcap.packet.PcapPacket;
 import org.jnetpcap.packet.PcapPacketHandler;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +19,7 @@ public class NILayer implements BaseLayer {
     public Pcap m_AdapterObject;//네트워크 어뎁터 객체
     public PcapIf device;//네트워크 인터페이스 객체
     public static List<PcapIf> adapterList;//네트워크 인터페이스 목록
+    public static List<MacData> macAddressData;
     static StringBuilder errbuf = new StringBuilder();//에러 버퍼
     private ReceiveThread thread;
 
@@ -31,17 +32,34 @@ public class NILayer implements BaseLayer {
         adapterNumber = 0;
     }
 
-    public static List<PcapIf> getAdapterListInstance() { // Mac 주소를 가져와 준다. -> GUI Layer에서 호출
-        synchronized (List.class) { // 변수에 대한 쓰레드 제어
-            if (NILayer.adapterList == null) {
-                NILayer.adapterList = new ArrayList<>();
-            }
-            if (NILayer.adapterList.isEmpty()) {
-                NILayer.setAdapterList(); // mac주소 리스트를 받아와준다
+    private static void getAdapterListInstance() { // Mac 주소를 가져와 준다. -> GUI Layer에서 호출
+        if (NILayer.adapterList == null) {
+            NILayer.adapterList = new ArrayList<>();
+        }
+        if (NILayer.adapterList.isEmpty()) {
+            NILayer.setAdapterList(); // mac주소 리스트를 받아와준다
+        }
+    }
+
+    public static List<MacData> getMacAddressFromAdapter() {
+        if (NILayer.macAddressData == null) {
+            NILayer.getAdapterListInstance();
+            for (int indexOfPcapList = 0; indexOfPcapList < NILayer.adapterList.size(); indexOfPcapList += 1) {
+                final PcapIf inputPcapIf = NILayer.adapterList.get(indexOfPcapList);//NILayer의 List를 가져옴
+                byte[] macAdress = null;//객체 지정
+                try {
+                    macAdress = inputPcapIf.getHardwareAddress();
+                } catch (IOException e) {
+                    System.out.println("Address error is happen");
+                }//에러 표출
+                if (macAdress == null) {
+                    continue;
+                }
+                NILayer.macAddressData.add(new MacData(macAdress, inputPcapIf.getDescription(), indexOfPcapList));
             }
         }
 
-        return NILayer.adapterList;
+        return NILayer.macAddressData;
     }
 
     public static void setAdapterList() {
@@ -156,3 +174,17 @@ class ReceiveThread implements Runnable {
         }
     }
 }
+
+class MacData {
+    public byte[] macAddress;
+    public String macName;
+    public int portNumber;
+
+    public MacData(byte[] macAddress, String macName, int portNumberOfMac) {
+        this.macAddress = macAddress;
+        this.macName = macName;
+        this.portNumber = portNumberOfMac;
+    }
+}
+
+
