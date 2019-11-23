@@ -141,29 +141,34 @@ public class RouterDlg extends JFrame {
 
     public class setAddressListener implements ActionListener {
 
-        private void clickTheData() {
+        private void clickTheData(int portNumber) { // 모든 객체 생성과 layer 연결 해주는 함수
             Map<String, BaseLayer> layerTable = new HashMap<>();
-
+            // Ip layer, Ethernet layer, NI layer 생성해야 하는 여부 판별 후 호출
             LayerManager.NUMBER_OF_NI_LAYER++;
-            BaseLayer newLayer = new NILayer("NI_" + LayerManager.NUMBER_OF_NI_LAYER);
-            mLayerMgr.AddLayer(newLayer);
-            layerTable.put("NI", newLayer);
+            NILayer niLayerObject = new NILayer("NI_" + LayerManager.NUMBER_OF_NI_LAYER);
+            mLayerMgr.AddLayer(niLayerObject);
+            layerTable.put("NI", niLayerObject);
 
+            // ethernet layer 데이터 추가
             LayerManager.NUMBER_OF_ETHERNET_LAYER++;
-            newLayer = new EthernetLayer("Ethernet_" + LayerManager.NUMBER_OF_ETHERNET_LAYER);
-            mLayerMgr.AddLayer(newLayer);
-            layerTable.put("Ethernet", newLayer);
+            EthernetLayer ethernetLayer = new EthernetLayer("Ethernet_" + LayerManager.NUMBER_OF_ETHERNET_LAYER);
+            MacData macData = NILayer.getMacAddressFromAdapter().get(portNumber);
+            ethernetLayer.setSrcNumber(macData.macAddress);
+            mLayerMgr.AddLayer(ethernetLayer);
+            layerTable.put("Ethernet", ethernetLayer);
 
             LayerManager.NUMBER_OF_IP_LAYER++;
-            newLayer = new IPLayer("IP_" + LayerManager.NUMBER_OF_IP_LAYER);
-            mLayerMgr.AddLayer(newLayer);
-            layerTable.put("IP", newLayer);
+            IPLayer ipLayer = new IPLayer("IP_" + LayerManager.NUMBER_OF_IP_LAYER);
+            mLayerMgr.AddLayer(ipLayer);
+            layerTable.put("IP", ipLayer);
 
-            connectAllLayers(layerTable); // connect
+            connectAllLayers(layerTable); // Layer connect
+
+            niLayerObject.setAdapterNumber(portNumber); // create Thread
         }
 
         /**
-         * @param layerTable : k - layer name, v - layer object
+         * @param layerTable : key - layer name, value - layer object
          */
         private void connectAllLayers(Map<String, BaseLayer> layerTable) {
             BaseLayer ni = layerTable.get("NI");
@@ -294,39 +299,37 @@ public class RouterDlg extends JFrame {
             panel.add(MetrictextArea);
 
             JButton addBtn = new JButton("추가");
-            addBtn.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    String destination = destinationText.getText();
-                    String netmask = netMaskText.getText();
-                    String gateway = gatewayText.getText();
-                    if (gateway.equals("")) {
-                        gateway = "*";
-                    }
-                    String flag = null;
-                    if (upCheckBox.isSelected()) {
-                        flag = "U";
-                    }
-                    if (gatewayCheckBox.isSelected()) {
-                        flag += "G";
-                    }
-                    if (hostCheckBox.isSelected()) {
-                        flag += "H";
-                    }
-                    String interfaceString = interfaceText.getText();
-                    String Metric = MetrictextArea.getText();
-                    DefaultTableModel model = (DefaultTableModel) routingTable.getModel();
-                    model.addRow(new Object[]{destination, netmask, gateway, flag, interfaceString, Metric});
-                    destinationText.setText("");
-                    netMaskText.setText("");
-                    gatewayText.setText("");
-                    upCheckBox.setSelected(false);
-                    gatewayCheckBox.setSelected(false);
-                    hostCheckBox.setSelected(false);
-                    interfaceText.setText("");
-                    MetrictextArea.setText("");
-                    setVisible(false);
-
+            addBtn.addActionListener(event -> {
+                String destination = destinationText.getText();
+                String netmask = netMaskText.getText();
+                String gateway = gatewayText.getText();
+                if (gateway.equals("")) {
+                    gateway = "*";
                 }
+                String flag = null;
+                if (upCheckBox.isSelected()) {
+                    flag = "U";
+                }
+                if (gatewayCheckBox.isSelected()) {
+                    flag += "G";
+                }
+                if (hostCheckBox.isSelected()) {
+                    flag += "H";
+                }
+                String interfaceString = interfaceText.getText();
+                String Metric = MetrictextArea.getText();
+                DefaultTableModel model = (DefaultTableModel) routingTable.getModel();
+                model.addRow(new Object[]{destination, netmask, gateway, flag, interfaceString, Metric});
+                destinationText.setText("");
+                netMaskText.setText("");
+                gatewayText.setText("");
+                upCheckBox.setSelected(false);
+                gatewayCheckBox.setSelected(false);
+                hostCheckBox.setSelected(false);
+                interfaceText.setText("");
+                MetrictextArea.setText("");
+                setVisible(false);
+
             });
             addBtn.setBounds(81, 289, 105, 27);
             contentPane.add(addBtn);
@@ -374,25 +377,23 @@ public class RouterDlg extends JFrame {
             contentPane.add(EthernetText);
 
             JButton OkButton = new JButton("OK");
-            OkButton.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    String interfaceString = DeviceText.getText();
-                    String ipName = IPText.getText();
-                    String ethernetName = EthernetText.getText();
-                    if (interfaceString.equals("") || ipName.equals("") || ethernetName.equals("")) {
-                        JOptionPane.showMessageDialog(null, "올바른 정보를 입력해주세요");
-                    } else {
+            OkButton.addActionListener(event -> {
+                String interfaceString = DeviceText.getText();
+                String ipName = IPText.getText();
+                String ethernetName = EthernetText.getText();
+                if (interfaceString.equals("") || ipName.equals("") || ethernetName.equals("")) {
+                    JOptionPane.showMessageDialog(null, "올바른 정보를 입력해주세요");
+                } else {
 //                        proxyTextArea.append(interfaceString + "       " + ipName + "       " + ethernetName + "\n");
-                        // byte[] IPArray = getIPByteArray(ipName.split("\\."));
-                        // byte[] EthernetArray = getMacByteArray(ethernetName);
-                        DefaultTableModel model = (DefaultTableModel) proxyTable.getModel();
-                        model.addRow(new Object[]{ipName, ethernetName, interfaceString});
-                        DeviceText.setText("");
-                        IPText.setText("");
-                        EthernetText.setText("");
-                        setVisible(false);
-                        // ARPLayer.Add_Proxy(IPArray, EthernetArray);
-                    }
+                    // byte[] IPArray = getIPByteArray(ipName.split("\\."));
+                    // byte[] EthernetArray = getMacByteArray(ethernetName);
+                    DefaultTableModel model = (DefaultTableModel) proxyTable.getModel();
+                    model.addRow(new Object[]{ipName, ethernetName, interfaceString});
+                    DeviceText.setText("");
+                    IPText.setText("");
+                    EthernetText.setText("");
+                    setVisible(false);
+                    // ARPLayer.Add_Proxy(IPArray, EthernetArray);
                 }
             });
             OkButton.setBounds(63, 219, 105, 27);
