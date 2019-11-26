@@ -142,6 +142,12 @@ public class NILayer implements BaseLayer {
         }
         return true;
     }
+
+	@Override
+	public BaseLayer getUnderLayer(int nindex) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }
 
 class ReceiveThread implements Runnable {
