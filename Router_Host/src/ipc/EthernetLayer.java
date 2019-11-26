@@ -204,4 +204,10 @@ public class EthernetLayer implements BaseLayer {
         byte[] srcAddr = this.etherNetSrc();
         return this.checkTheFrameData(srcAddr, inputFrameData, 6);
     }// loop back일 경우 true, 다른 곳에서 온 frame : false
+
+	@Override
+	public BaseLayer getUnderLayer(int nindex) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

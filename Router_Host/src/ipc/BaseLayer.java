@@ -13,6 +13,8 @@ interface BaseLayer {
     public BaseLayer getUnderLayer();
 
     public BaseLayer getUpperLayer(int nindex);
+    
+    public BaseLayer getUnderLayer(int nindex);
 
     public void setUnderLayer(BaseLayer pUnderLayer);
 

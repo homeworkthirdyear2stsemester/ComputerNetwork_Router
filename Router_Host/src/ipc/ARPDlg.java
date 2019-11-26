@@ -473,4 +473,10 @@ public class ARPDlg extends JFrame implements BaseLayer {
         arpDlg.setDefaultCloseOperation(EXIT_ON_CLOSE);
        
     }
+
+	@Override
+	public BaseLayer getUnderLayer(int nindex) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

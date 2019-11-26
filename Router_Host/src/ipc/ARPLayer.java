@@ -106,7 +106,7 @@ public class ARPLayer implements BaseLayer {
                 this.arpCheckAndPut(src_ip_address, src_mac_address);
             } else if (Arrays.equals(src_ip_address, dst_ip_address)) { //GARP
                 this.arpCheckAndPut(src_ip_address, src_mac_address);
-
+                
                 return true;
             } else {// 내 ip로 안옴
                 if (proxyTable.containsKey(byteArrayToString(dst_ip_address))) {// 연결된 proxy이다
@@ -130,7 +130,7 @@ public class ARPLayer implements BaseLayer {
         } else if (opcode[0] == 0x00 & opcode[1] == 0x02) {// 내가 보낸 ARP 요청이 돌아옴 (상대방이 주소를 넣어서 보냄)
             this.setTimer(src_ip_address, 1200000);
             arpCheckAndPut(src_ip_address, src_mac_address);
-
+            IPLayer.ischeck = false;
             return true;
         }
 
@@ -265,4 +265,10 @@ public class ARPLayer implements BaseLayer {
         this.setUpperLayer(pUULayer);
         pUULayer.setUnderLayer(this);
     }
+
+	@Override
+	public BaseLayer getUnderLayer(int nindex) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }
