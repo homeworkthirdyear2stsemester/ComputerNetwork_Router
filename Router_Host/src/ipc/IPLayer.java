@@ -24,7 +24,7 @@ public class IPLayer implements BaseLayer {
 		return temp;
 	}
 
-	private class Router implements Comparable<Router>{
+	public class Router implements Comparable<Router>{
 		public byte[] _dstAddress;
 		public byte[] _netMask;
 		public byte[] _gateway;
@@ -133,8 +133,16 @@ public class IPLayer implements BaseLayer {
 	public boolean addRoutingTable(byte[] dstAddress,byte[] netmask,byte[] gateway, int flag,int interFace,int metric) {
 		routingTable.add(new Router(dstAddress,netmask,gateway,flag,interFace,metric));
 		Collections.sort(routingTable);
+		((RouterDlg)p_aUpperLayer.get(0)).updateRoutingTable(routingTable);
 		return false;
 	}
+	
+	public boolean removeRoutingTable(int index) {
+	      if(routingTable.size() < index) return false;
+	      routingTable.remove(index);
+	      return true;
+	   }
+	
 	public synchronized boolean receive(byte[] input) {
         // IP 타입 체크 ip_verlen : ip version 0x04      ip_header.ip_tos : type of service 0x00
         if (this.ip_header.ipVerlen != input[1] || this.ip_header.ipTos != input[2]) {
