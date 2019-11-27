@@ -10,7 +10,9 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Map;
+import java.util.Set;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -18,7 +20,7 @@ public class RouterDlg extends JFrame {
 
 	private JPanel contentPane;
 	private JTable routingTable;
-	private JTable arpTable;
+	private static JTable arpTable;
 	private JTable proxyTable;
 	private JButton routingAddBtn;
 	private JButton routingDeleteBtn;
@@ -36,6 +38,7 @@ public class RouterDlg extends JFrame {
 	private List<MacData> adapterList;
 
 	public static LayerManager mLayerMgr = new LayerManager();
+	private static Object[][] arpObjectList;
 
 	/**
 	 * Launch the application.
@@ -272,12 +275,29 @@ public class RouterDlg extends JFrame {
 			list[i][5] = String.valueOf(routerIndex._metric);
 		}
 		model.addRow(list);
+	}
 
+	public static void updateARPTable() {
+		DefaultTableModel model = (DefaultTableModel) arpTable.getModel();
+		int rowCount = model.getRowCount();
+		for (int i = rowCount - 1; i >= 0; i--) {
+			model.removeRow(i);
+		}
+		Hashtable<String, byte[]> arpList = (Hashtable) ARPLayer.arpTable;
+		arpObjectList = new Object[arpList.size()][2];
+		Set<String> keySetData = arpList.keySet();
+		int count = 0;
+		for (String key : keySetData) {
+			arpObjectList[count][0] = key;
+			arpObjectList[count][1] = MacData.byteMacArrayToStringMac(arpList.get(key));
+		}
+		model.addRow(arpObjectList);
 	}
 
 	public class setAddressListener implements ActionListener {
 
-		private void makeLayerAndThreadOpenIfChoosePort(int portNumber, byte[] srcIpAddress, byte[] srcMacAddress) {
+		private void makeLayerAndThreadOpenIfChoosePort(int portNumber, byte[] srcIpAddress, byte[] srcMacAddress,
+				int option) {
 			// 모든 객체 생성과 layer를 연결해주는 함수
 			Map<String, BaseLayer> layerTable = new HashMap<>();
 			// Ip layer, Ethernet layer, NI layer 생성해야 하는 여부 판별 후 호출
@@ -320,7 +340,7 @@ public class RouterDlg extends JFrame {
 			ethernet.setUpperLayer(ip);
 		}
 
-		private void deleteTableRow(JTable target) {
+		private int deleteTableRow(JTable target, int option) {
 			String indexValue = JOptionPane.showInputDialog(null, "삭제할 Cache의 인덱스를 입력해주세요(Index : 1부터 시작)",
 					"Cache Delete", JOptionPane.OK_CANCEL_OPTION);
 			int indexValueInteger = 0;
@@ -328,8 +348,13 @@ public class RouterDlg extends JFrame {
 				indexValueInteger = Integer.parseInt(indexValue);
 			}
 			DefaultTableModel model = (DefaultTableModel) target.getModel();
+			if(option == 1) {
+				String ipString = (String)model.getValueAt(indexValueInteger - 1, 0);
+				ARPLayer.removeProxy(getIPByteArray(ipString.split(".")));
+			}
 			model.removeRow(indexValueInteger - 1);
 			((IPLayer) mLayerMgr.getLayer("IP")).removeRoutingTable(indexValueInteger - 1);
+			return indexValueInteger - 1;
 		}
 
 		@Override
@@ -340,11 +365,13 @@ public class RouterDlg extends JFrame {
 			} else if (e.getSource() == proxyAddBtn) {
 				new ProxyDlg();
 			} else if (e.getSource() == routingDeleteBtn) {
-				deleteTableRow(routingTable);
+				deleteTableRow(routingTable, 0);
 			} else if (e.getSource() == arpDeleteBtn) {
-				deleteTableRow(arpTable);
+				int index = deleteTableRow(arpTable, 0);
+				String target = (String)arpObjectList[index][0];
+				ARPLayer.Remove_Arp(getIPByteArray(target.split(".")));
 			} else if (e.getSource() == proxyDeleteBtn) {
-				deleteTableRow(proxyTable);
+				deleteTableRow(proxyTable, 1);
 			} else if (e.getSource() == leftComboBox) {
 				int index = leftComboBox.getSelectedIndex();
 				leftMacTextArea.setText(MacData.byteMacArrayToStringMac(adapterList.get(index).macAddress));
@@ -358,7 +385,7 @@ public class RouterDlg extends JFrame {
 					byte[] ipAddress = getIPByteArray(srcIPString.split("."));
 					// adapterList.get(0).portNumber
 					makeLayerAndThreadOpenIfChoosePort(adapterList.get(leftComboBox.getSelectedIndex()).portNumber,
-							ipAddress, MacData.stringMacToByteMacArray(srcMacString));
+							ipAddress, MacData.stringMacToByteMacArray(srcMacString), 0);
 					leftConnectorBtn.setText("Reset");
 					leftMacTextArea.enable(false);
 					leftIPTextArea.enable(false);
@@ -373,7 +400,7 @@ public class RouterDlg extends JFrame {
 					String srcIPString = rightIPTextArea.getText();
 					byte[] ipAddress = getIPByteArray(srcIPString.split("."));
 					makeLayerAndThreadOpenIfChoosePort(adapterList.get(rightComboBox.getSelectedIndex()).portNumber,
-							ipAddress, MacData.stringMacToByteMacArray(srcMacString));
+							ipAddress, MacData.stringMacToByteMacArray(srcMacString), 1);
 					rightConnectorBtn.setText("Reset");
 					rightMacTextArea.enable(false);
 					rightIPTextArea.enable(false);
@@ -565,16 +592,13 @@ public class RouterDlg extends JFrame {
 				if (interfaceString.equals("") || ipName.equals("") || ethernetName.equals("")) {
 					JOptionPane.showMessageDialog(null, "올바른 정보를 입력해주세요");
 				} else {
-//                        proxyTextArea.append(interfaceString + "       " + ipName + "       " + ethernetName + "\n");
-					// byte[] IPArray = getIPByteArray(ipName.split("\\."));
-					// byte[] EthernetArray = getMacByteArray(ethernetName);
 					DefaultTableModel model = (DefaultTableModel) proxyTable.getModel();
 					model.addRow(new Object[] { ipName, ethernetName, interfaceString });
 					DeviceText.setText("");
 					IPText.setText("");
 					EthernetText.setText("");
 					setVisible(false);
-					// ARPLayer.Add_Proxy(IPArray, EthernetArray);
+					ARPLayer.addProxy(getIPByteArray(ipName.split(".")), MacData.stringMacToByteMacArray(ethernetName));
 				}
 			});
 			OkButton.setBounds(63, 219, 105, 27);
