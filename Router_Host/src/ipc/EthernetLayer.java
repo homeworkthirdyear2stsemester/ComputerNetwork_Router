@@ -196,7 +196,7 @@ public class EthernetLayer implements BaseLayer {
     }// 브로드 케스트인지 check
 
     private boolean isMyConnectionData(byte[] inputFrameData) {
-        byte[] srcAddr = ARPDlg.myMacAddress;
+        byte[] srcAddr = this.ethernetHeader.enetSrcAddr.addr;
         return this.checkTheFrameData(srcAddr, inputFrameData, 0);
     }// 지금 받은 frame이 나랑 연결된 mac주소인지 판별
 
@@ -205,9 +205,8 @@ public class EthernetLayer implements BaseLayer {
         return this.checkTheFrameData(srcAddr, inputFrameData, 6);
     }// loop back일 경우 true, 다른 곳에서 온 frame : false
 
-	@Override
-	public BaseLayer getUnderLayer(int nindex) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public BaseLayer getUnderLayer(int nindex) {
+        return null;
+    }
 }

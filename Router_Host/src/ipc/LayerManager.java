@@ -7,6 +7,7 @@ public class LayerManager {//Layer를 모두 관리 해줌
     public static int NUMBER_OF_NI_LAYER = 0;
     public static int NUMBER_OF_IP_LAYER = 0;
     public static int NUMBER_OF_ETHERNET_LAYER = 0;
+    public static RouterDlg routerDlg;
 
     private class Node {//String으로 data 저장
         private String token;
