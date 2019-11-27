@@ -27,7 +27,6 @@ public class ARPLayer implements BaseLayer {
     }
 
     private class ArpHeader {
-        byte is_checked; // arp이면 06 ip이면 08 -> ethernet에서 구별
         byte[] arpMacType;
         byte[] arpIpType;
         byte arpMacAddrLen;
@@ -37,7 +36,6 @@ public class ARPLayer implements BaseLayer {
         ArpAddress arpDstaddr;
 
         public ArpHeader() {
-            this.is_checked = 0x00;
             this.arpMacType = new byte[2];
             this.arpIpType = new byte[2];
             this.arpMacAddrLen = 0x06;
@@ -65,13 +63,13 @@ public class ARPLayer implements BaseLayer {
         // IPLayer가 arp테이블을 봤는데 없어서 일로 옴
         // ARP를 만든다.
         this.arpHeader.arpSrcaddr.ipAddr = ARPDlg.myIPAddress; // 출발지 IP주소 = 내 IP주소
-        byte[] targetip = Arrays.copyOfRange(input, 13, 17);
-        byte[] myip = Arrays.copyOfRange(input, 17, 21);
+        byte[] targetip = Arrays.copyOfRange(input, 12, 16);
+        byte[] myip = Arrays.copyOfRange(input, 16, 20);
         if (Arrays.equals(targetip, myip)) { // g ARP : mac 주소 변경
             this.arpHeader.arpSrcaddr.macAddr = ARPDlg.GratuitousAddress; // 출발지 맥주소 = 바뀐주소
             this.arpHeader.arpDstaddr.ipAddr = ARPDlg.myIPAddress; // 도착지 근원지IP주소 = 내 IP주소
             byte[] arp = objToByteSend(arpHeader, (byte) 0x06, (byte) 0x01);
-
+            System.out.println("강영균 병신 새끼");
             return getUnderLayer().send(arp, arp.length);
         } else {
             this.arpHeader.arpSrcaddr.macAddr = ARPDlg.myMacAddress;
@@ -90,10 +88,10 @@ public class ARPLayer implements BaseLayer {
 
     @Override
     public synchronized boolean receive(byte[] input) {
-        byte[] opcode = Arrays.copyOfRange(input, 7, 9);
-        byte[] srcMacAddress = Arrays.copyOfRange(input, 9, 15);
-        byte[] srcIpAddress = Arrays.copyOfRange(input, 15, 19);
-        byte[] dstIpAddress = Arrays.copyOfRange(input, 25, 29);
+        byte[] opcode = Arrays.copyOfRange(input, 6, 8);
+        byte[] srcMacAddress = Arrays.copyOfRange(input, 8, 14);
+        byte[] srcIpAddress = Arrays.copyOfRange(input, 14, 18);
+        byte[] dstIpAddress = Arrays.copyOfRange(input, 24, 28);
         // 리시브드
 
         if (opcode[0] == 0x00 & opcode[1] == 0x01) {// ARP 요청 받음
@@ -183,25 +181,24 @@ public class ARPLayer implements BaseLayer {
     }
 
     public byte[] objToByteSend(ArpHeader Header, byte is_checked, byte opcode) {
-        byte[] buf = new byte[29]; // ARP Frame
+        byte[] buf = new byte[28]; // ARP Frame
         byte[] srcMac = Header.arpSrcaddr.macAddr;
         byte[] srcIp = Header.arpSrcaddr.ipAddr;
         byte[] dstMac = Header.arpDstaddr.macAddr;
         byte[] dstIp = Header.arpDstaddr.ipAddr;
 
-        buf[0] = is_checked;
-        buf[1] = 0x00;
-        buf[2] = 0x01;// Hard
-        buf[3] = 0x08;
-        buf[4] = 0x00;// protocol
-        buf[5] = Header.arpMacAddrLen;// 1바이트
-        buf[6] = Header.arpIpAddrLen;// 2바이트
-        buf[7] = 0x00;
-        buf[8] = opcode;
-        System.arraycopy(srcMac, 0, buf, 9, 6);// 6바이트
-        System.arraycopy(srcIp, 0, buf, 15, 4);// 4바이트
-        System.arraycopy(dstMac, 0, buf, 19, 6);// 6바이트
-        System.arraycopy(dstIp, 0, buf, 25, 4);// 4바이트
+        buf[0] = 0x00;
+        buf[1] = 0x01;// Hard
+        buf[2] = 0x08;
+        buf[3] = 0x00;// protocol
+        buf[4] = Header.arpMacAddrLen;// 1바이트
+        buf[5] = Header.arpIpAddrLen;// 2바이트
+        buf[6] = 0x00;
+        buf[7] = opcode;
+        System.arraycopy(srcMac, 0, buf, 8, 6);// 6바이트
+        System.arraycopy(srcIp, 0, buf, 14, 4);// 4바이트
+        System.arraycopy(dstMac, 0, buf, 18, 6);// 6바이트
+        System.arraycopy(dstIp, 0, buf, 24, 4);// 4바이트
 
         return buf;
     }
