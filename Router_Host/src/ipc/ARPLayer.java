@@ -6,6 +6,7 @@ public class ARPLayer implements BaseLayer {
     public int nUpperLayerCount = 0;
     public String pLayerName = null;
     public BaseLayer p_UnderLayer = null;
+    public List<BaseLayer> underLayers = new ArrayList<>();
     public ArrayList<BaseLayer> p_aUpperLayer = new ArrayList<>();
     public static Map<String, byte[]> arpTable = new Hashtable<>();
     public ArpHeader arpHeader = new ArpHeader();
@@ -250,7 +251,7 @@ public class ARPLayer implements BaseLayer {
     public void setUnderLayer(BaseLayer pUnderLayer) {
         if (pUnderLayer == null)
             return;
-        this.p_UnderLayer = pUnderLayer;
+        this.underLayers.add(pUnderLayer);
     }
 
     @Override
@@ -268,7 +269,10 @@ public class ARPLayer implements BaseLayer {
 
     @Override
     public BaseLayer getUnderLayer(int nindex) {
-        // TODO Auto-generated method stub
+        if (0 <= nindex && nindex <= this.underLayers.size()) {
+            return this.underLayers.get(nindex);
+        }
+
         return null;
     }
 }
