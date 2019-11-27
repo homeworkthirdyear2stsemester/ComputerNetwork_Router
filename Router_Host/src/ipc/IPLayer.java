@@ -82,8 +82,8 @@ public class IPLayer implements BaseLayer {
 			SetIpDstAddress(((ARPDlg) this.getUpperLayer(0).getUpperLayer(2)).getMyIPAddress()); // dst도 내 Mac주소로 해서
 																									// 그래티우스라는걸 작업
 		} 
-//		return this.getUnderLayer(0).send(input, input.length);
-		return false;
+		return this.getUnderLayer(0).send(input, input.length);
+//		return false;
 	}
 
 	private byte[] objToByte20(IpHeader ipHeader, byte[] input, int length) { // 헤더 추가부분

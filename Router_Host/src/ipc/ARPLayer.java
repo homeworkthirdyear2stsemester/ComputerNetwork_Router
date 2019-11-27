@@ -27,21 +27,21 @@ public class ARPLayer implements BaseLayer {
 
     private class ArpHeader {
         byte is_checked; // arp이면 06 ip이면 08 -> ethernet에서 구별
-        byte[] arp_mac_type;
-        byte[] arp_ip_type;
+        byte[] arpMacType;
+        byte[] arpIpType;
         byte arpMacAddrLen;
         byte arpIpAddrLen;
-        byte[] arp_opcode;
+        byte[] arpOpcode;
         ArpAddress arpSrcaddr;
         ArpAddress arpDstaddr;
 
         public ArpHeader() {
             this.is_checked = 0x00;
-            this.arp_mac_type = new byte[2];
-            this.arp_ip_type = new byte[2];
+            this.arpMacType = new byte[2];
+            this.arpIpType = new byte[2];
             this.arpMacAddrLen = 0x06;
             this.arpIpAddrLen = 0x04;
-            this.arp_opcode = new byte[2];
+            this.arpOpcode = new byte[2];
             this.arpSrcaddr = new ArpAddress();
             this.arpDstaddr = new ArpAddress();
         }
@@ -90,35 +90,35 @@ public class ARPLayer implements BaseLayer {
     @Override
     public synchronized boolean receive(byte[] input) {
         byte[] opcode = Arrays.copyOfRange(input, 7, 9);
-        byte[] src_mac_address = Arrays.copyOfRange(input, 9, 15);
-        byte[] src_ip_address = Arrays.copyOfRange(input, 15, 19);
-        byte[] dst_ip_address = Arrays.copyOfRange(input, 25, 29);
+        byte[] srcMacAddress = Arrays.copyOfRange(input, 9, 15);
+        byte[] srcIpAddress = Arrays.copyOfRange(input, 15, 19);
+        byte[] dstIpAddress = Arrays.copyOfRange(input, 25, 29);
         // 리시브드
 
         if (opcode[0] == 0x00 & opcode[1] == 0x01) {// ARP 요청 받음
-            this.setTimer(src_ip_address, 180000);
+            this.setTimer(srcIpAddress, 180000);
             ArpHeader responseHeader = new ArpHeader();// 보낼 헤드 생성
-            if (Arrays.equals(dst_ip_address, ARPDlg.myIPAddress)) {// 내 ip로 온 경우 내 IP랑 헤더에 적힌 IP비교 -> 아닐경우 Proxy
+            if (Arrays.equals(dstIpAddress, ARPDlg.myIPAddress)) {// 내 ip로 온 경우 내 IP랑 헤더에 적힌 IP비교 -> 아닐경우 Proxy
                 responseHeader.arpSrcaddr.macAddr = ARPDlg.myMacAddress;// 내 mac주소 넣어준다.
-                responseHeader.arpSrcaddr.ipAddr = dst_ip_address;
-                responseHeader.arpDstaddr.macAddr = src_mac_address;
-                responseHeader.arpDstaddr.ipAddr = src_ip_address;
-                this.arpCheckAndPut(src_ip_address, src_mac_address);
-            } else if (Arrays.equals(src_ip_address, dst_ip_address)) { //GARP
-                this.arpCheckAndPut(src_ip_address, src_mac_address);
-                
+                responseHeader.arpSrcaddr.ipAddr = dstIpAddress;
+                responseHeader.arpDstaddr.macAddr = srcMacAddress;
+                responseHeader.arpDstaddr.ipAddr = srcIpAddress;
+                this.arpCheckAndPut(srcIpAddress, srcMacAddress);
+            } else if (Arrays.equals(srcIpAddress, dstIpAddress)) { //GARP
+                this.arpCheckAndPut(srcIpAddress, srcMacAddress);
+
                 return true;
             } else {// 내 ip로 안옴
-                if (proxyTable.containsKey(byteArrayToString(dst_ip_address))) {// 연결된 proxy이다
+                if (proxyTable.containsKey(byteArrayToString(dstIpAddress))) {// 연결된 proxy이다
                     responseHeader.arpSrcaddr.macAddr = ARPDlg.myMacAddress;// 여기다가 내 Mac주소 넣어준다. ***위에서 고쳐야함***
-                    responseHeader.arpSrcaddr.ipAddr = dst_ip_address;
-                    responseHeader.arpDstaddr.macAddr = src_mac_address;
-                    responseHeader.arpDstaddr.ipAddr = src_ip_address;
-                    arpCheckAndPut(src_ip_address, src_mac_address);
+                    responseHeader.arpSrcaddr.ipAddr = dstIpAddress;
+                    responseHeader.arpDstaddr.macAddr = srcMacAddress;
+                    responseHeader.arpDstaddr.ipAddr = srcIpAddress;
+                    arpCheckAndPut(srcIpAddress, srcMacAddress);
                     //Proxy update 할 필요없음 -> 자신이 쳐서 올라가기때문이기때문
                     // swap
                 } else {// proxy아님
-                    this.arpCheckAndPut(src_ip_address, src_mac_address);
+                    this.arpCheckAndPut(srcIpAddress, srcMacAddress);
 
                     return false;// proxy아니고 내꺼도 아니니 버린다
                 }
@@ -128,8 +128,8 @@ public class ARPLayer implements BaseLayer {
 
             return this.getUnderLayer().send(responseArp, responseArp.length);
         } else if (opcode[0] == 0x00 & opcode[1] == 0x02) {// 내가 보낸 ARP 요청이 돌아옴 (상대방이 주소를 넣어서 보냄)
-            this.setTimer(src_ip_address, 1200000);
-            arpCheckAndPut(src_ip_address, src_mac_address);
+            this.setTimer(srcIpAddress, 1200000);
+            arpCheckAndPut(srcIpAddress, srcMacAddress);
             IPLayer.ischeck = false;
             return true;
         }
@@ -137,8 +137,8 @@ public class ARPLayer implements BaseLayer {
         return false;
     }
 
-    private void setTimer(byte[] src_ip_address, long time) {
-        Timer timer = new Timer(byteArrayToString(src_ip_address));
+    private void setTimer(byte[] srcIpAddress, long time) {
+        Timer timer = new Timer(byteArrayToString(srcIpAddress));
         TimerTask task = new TimerTask() {
             @Override
             public void run() {
@@ -149,22 +149,22 @@ public class ARPLayer implements BaseLayer {
         timer.schedule(task, time); // 10초로 지정
     }
 
-    public void arpCheckAndPut(byte[] src_ip_address, byte[] src_mac_address) {
-        String stringIpAddress = byteArrayToString(src_ip_address);
+    public void arpCheckAndPut(byte[] srcIpAddress, byte[] srcMacAddress) {
+        String stringIpAddress = byteArrayToString(srcIpAddress);
         if (arpTable.containsKey(stringIpAddress)) {
             byte[] beforeMacAddress = arpTable.get(stringIpAddress);
             if (beforeMacAddress.length != 1) {
                 Set<String> arpTableKeySet = arpTable.keySet();
                 for (String arpTableKey : arpTableKeySet) {
                     if (Arrays.equals(arpTable.get(arpTableKey), beforeMacAddress)) {
-                        arpTable.replace(arpTableKey, src_mac_address);
+                        arpTable.replace(arpTableKey, srcMacAddress);
                     }
                 }
             }
-            arpTable.replace(byteArrayToString(src_ip_address), src_mac_address);
+            arpTable.replace(byteArrayToString(srcIpAddress), srcMacAddress);
             ARPDlg.updateARPTableToGUI();
         } else {
-            arpTable.put(stringIpAddress, src_mac_address);
+            arpTable.put(stringIpAddress, srcMacAddress);
             ARPDlg.updateARPTableToGUI();
         }
     }
@@ -205,7 +205,7 @@ public class ARPLayer implements BaseLayer {
         return buf;
     }
 
-    public static void Add_Proxy(byte[] IP, byte[] Mac) {
+    public static void addProxy(byte[] IP, byte[] Mac) {
         proxyTable.put(byteArrayToString(IP), Mac);
     }
 
@@ -219,7 +219,7 @@ public class ARPLayer implements BaseLayer {
         ARPDlg.updateARPTableToGUI();
     }
 
-    public static void Remove_Proxy(byte[] removedIp) {
+    public static void removeProxy(byte[] removedIp) {
         proxyTable.remove(byteArrayToString(removedIp));
     }
 
@@ -266,9 +266,9 @@ public class ARPLayer implements BaseLayer {
         pUULayer.setUnderLayer(this);
     }
 
-	@Override
-	public BaseLayer getUnderLayer(int nindex) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public BaseLayer getUnderLayer(int nindex) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 }
