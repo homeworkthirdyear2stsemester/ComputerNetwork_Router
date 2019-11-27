@@ -145,21 +145,6 @@ public class IPLayer implements BaseLayer {
 	
 	public synchronized boolean receive(byte[] input) {
         // IP 타입 체크 ip_verlen : ip version 0x04      ip_header.ip_tos : type of service 0x00
-        if (this.ip_header.ipVerlen != input[1] || this.ip_header.ipTos != input[2]) {
-            return false;
-        } // ip 버전이 4인거만 받았다 -> 4, 6중에 4만 받음
-
-
-        int packet_tot_len = ((input[3] << 8) & 0xFF00) + input[4] & 0xFF; //수신된 패킷의 전체 길이
-        
-//        for (int addr_index_count = 0; addr_index_count < 4; addr_index_count++) { // 내 주소가 아닐 경우 무조건 proxy를 보내는 걸 한다.
-//            if (ARPDlg.myIPAddress[addr_index_count] != input[17 + addr_index_count]) {  //수신한 데이터의 목적지 IP주소가 나의 IP주소와 일치하는지 확인
-//                return this.getUnderLayer(0).send(input, packet_tot_len);  //일치하지 않으면 프록시 기능으로 대신 전달해야 하는 데이터라고 인지하여 Ethernet Layer에 전달
-//                //ethernet send에서 상대 맥주소 테이블에서 찾을때 ARP테이블이랑 proxy테이블 둘다 찾아봐야할듯?
-//                //프록시 연결이 되고 데이터가 최종 목적지에 도착하면 최종목적지 arp테이블에 주소가 반영되는지?
-//            }
-//        }// proxy arp
-
         //일치하면 최종 목적지가 자신이므로 de-multiplex하고 상위 레이어로 올림
 //        byte[] removeHeader=RemoveCappHeader(input, packet_tot_len);
         byte[] ipheader = Arrays.copyOfRange(input, 16, 20);
