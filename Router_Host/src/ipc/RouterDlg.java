@@ -358,7 +358,7 @@ public class RouterDlg extends JFrame {
                 ARPLayer.removeProxy(getIPByteArray(ipString.split("\\.")));
             }
             model.removeRow(indexValueInteger - 1);
-            ((IPLayer) mLayerMgr.getLayer("IP")).removeRoutingTable(indexValueInteger - 1);
+            IPLayer.removeRoutingTable(indexValueInteger - 1);
             return indexValueInteger - 1;
         }
 

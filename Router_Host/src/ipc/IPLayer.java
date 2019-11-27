@@ -111,7 +111,7 @@ public class IPLayer implements BaseLayer {
         return false;
     }
 
-    public boolean removeRoutingTable(int index) {
+    public static boolean removeRoutingTable(int index) {
         if (routingTable.size() < index) return false;
         routingTable.remove(index);
         return true;
