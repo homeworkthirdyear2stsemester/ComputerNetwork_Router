@@ -3,6 +3,9 @@ package ipc;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
+
+import ipc.IPLayer.Router;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -244,15 +247,38 @@ public class RouterDlg extends JFrame {
 		return newData;
 	}
 
+	public static String getIPString(byte[] data) {
+		int a = (int) data[0] & 0xff;
+		int b = (int) data[1] & 0xff;
+		int c = (int) data[2] & 0xff;
+		int d = (int) data[3] & 0xff;
+		return String.valueOf(a) + "." + String.valueOf(b) + "." + String.valueOf(c) + "." + String.valueOf(d);
+	}
+
+	public void updateRoutingTable(List<Router> routingTableList) {
+		DefaultTableModel model = (DefaultTableModel) routingTable.getModel();
+		int rowCount = model.getRowCount();
+		for (int i = rowCount - 1; i >= 0; i--) {
+			model.removeRow(i);
+		}
+		Object[][] list = new Object[routingTableList.size()][6];
+		for (int i = 0; i < routingTableList.size(); i++) {
+			Router routerIndex = routingTableList.get(i);
+			list[i][0] = getIPString(routerIndex._dstAddress);
+			list[i][1] = getIPString(routerIndex._netMask);
+			list[i][2] = getIPString(routerIndex._gateway);
+			list[i][3] = String.valueOf(routerIndex._flag == 0 ? "U" : routerIndex._flag == 1 ? "UG" : "H");
+			list[i][4] = String.valueOf(routerIndex._interface);
+			list[i][5] = String.valueOf(routerIndex._metric);
+		}
+		model.addRow(list);
+
+	}
+
 	public class setAddressListener implements ActionListener {
 
-		private void makeLayerAndThreadOpenIfChoosePort(int portNumber, byte[] srcIpAddress, byte[] srcMacAddress) { // 모든
-																														// 객체
-																														// 생성과
-																														// layer
-																														// 연결
-																														// 해주는
-																														// 함수
+		private void makeLayerAndThreadOpenIfChoosePort(int portNumber, byte[] srcIpAddress, byte[] srcMacAddress) {
+			// 모든 객체 생성과 layer를 연결해주는 함수
 			Map<String, BaseLayer> layerTable = new HashMap<>();
 			// Ip layer, Ethernet layer, NI layer 생성해야 하는 여부 판별 후 호출
 			LayerManager.NUMBER_OF_NI_LAYER++;
@@ -303,12 +329,14 @@ public class RouterDlg extends JFrame {
 			}
 			DefaultTableModel model = (DefaultTableModel) target.getModel();
 			model.removeRow(indexValueInteger - 1);
+			((IPLayer) mLayerMgr.getLayer("IP")).removeRoutingTable(indexValueInteger - 1);
 		}
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			if (e.getSource() == routingAddBtn) {
 				new RouterAddDlg();
+
 			} else if (e.getSource() == proxyAddBtn) {
 				new ProxyDlg();
 			} else if (e.getSource() == routingDeleteBtn) {
@@ -467,6 +495,10 @@ public class RouterDlg extends JFrame {
 				}
 				String interfaceString = interfaceText.getText();
 				String Metric = MetrictextArea.getText();
+				int flagNum = flag.equals("U") ? 0 : flag.equals("UG") ? 1 : 2;
+				((IPLayer) mLayerMgr.getLayer("IP")).addRoutingTable(getIPByteArray(destination.split(".")),
+						getIPByteArray(netmask.split(".")), getIPByteArray(gateway.split(".")), flagNum,
+						Integer.parseInt(interfaceString), Integer.parseInt(Metric));
 				DefaultTableModel model = (DefaultTableModel) routingTable.getModel();
 				model.addRow(new Object[] { destination, netmask, gateway, flag, interfaceString, Metric });
 				destinationText.setText("");
