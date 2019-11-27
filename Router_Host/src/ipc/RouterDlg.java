@@ -262,13 +262,23 @@ public class RouterDlg extends JFrame {
         for (int i = 0; i < routingTableList.size(); i++) {
             Router routerIndex = routingTableList.get(i);
             list[i][0] = getIPString(routerIndex._dstAddress);
+            System.out.println(list[i][0]);
             list[i][1] = getIPString(routerIndex._netMask);
+            System.out.println(list[i][1]);
             list[i][2] = getIPString(routerIndex._gateway);
+            System.out.println(list[i][2]);
             list[i][3] = String.valueOf(routerIndex._flag == 0 ? "U" : routerIndex._flag == 1 ? "UG" : "H");
+            System.out.println(list[i][3]);
             list[i][4] = String.valueOf(routerIndex._interface);
+            System.out.println(list[i][4]);
             list[i][5] = String.valueOf(routerIndex._metric);
+            System.out.println(list[i][5]);
         }
-        model.addRow(list);
+        System.out.println("271");
+        for(int i = 0; i < list.length; i++) {
+        	model.addRow(list[i]);
+        }
+        //model.addRow(list);
     }
 
     public static void updateARPTable() {
@@ -285,6 +295,7 @@ public class RouterDlg extends JFrame {
             arpObjectList[count][0] = key;
             arpObjectList[count][1] = MacData.byteMacArrayToStringMac(arpList.get(key));
         }
+        System.out.println("289");
         model.addRow(arpObjectList);
     }
 
@@ -520,9 +531,9 @@ public class RouterDlg extends JFrame {
                 IPLayer.addRoutingTable(getIPByteArray(destination.split("\\.")),
                         getIPByteArray(netmask.split("\\.")), getIPByteArray(gateway.split("\\.")), flagNum,
                         Integer.parseInt(interfaceString), Integer.parseInt(Metric));
-                DefaultTableModel model = (DefaultTableModel) routingTable.getModel();
-                System.out.println(destination + netmask + gateway + flag + interfaceString + Metric);
-                model.insertRow(model.getRowCount()-1, new Object[]{destination, netmask, gateway, flag, interfaceString, Metric});
+//                DefaultTableModel model = (DefaultTableModel) routingTable.getModel();
+//                System.out.println("526");
+//                model.addRow(new Object[]{destination, netmask, gateway, flag, interfaceString, Metric});
                 destinationText.setText("");
                 netMaskText.setText("");
                 gatewayText.setText("");
@@ -588,6 +599,7 @@ public class RouterDlg extends JFrame {
                     JOptionPane.showMessageDialog(null, "올바른 정보를 입력해주세요");
                 } else {
                     DefaultTableModel model = (DefaultTableModel) proxyTable.getModel();
+                    System.out.println("593");
                     model.addRow(new Object[]{ipName, ethernetName, interfaceString});
                     DeviceText.setText("");
                     IPText.setText("");
