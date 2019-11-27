@@ -103,7 +103,6 @@ public class IPLayer implements BaseLayer {
             this.getUnderLayer(1).send(arp_Ipheader, arp_Ipheader.length);
         }
     }
-
     public static boolean addRoutingTable(byte[] dstAddress, byte[] netmask, byte[] gateway, int flag, int interFace, int metric) {
         routingTable.add(new Router(dstAddress, netmask, gateway, flag, interFace, metric));
         Collections.sort(routingTable);
@@ -277,8 +276,8 @@ class Router implements Comparable<Router> {
     public int compareTo(Router o) {
         int this_value = ((((int) this._netMask[0] & 0xff) << 24) | (((int) this._netMask[1] & 0xff) << 16) | (((int) this._netMask[2] & 0xff) << 8) | (((int) this._netMask[3] & 0xff)));
         int o_value = ((((int) o._netMask[0] & 0xff) << 24) | (((int) o._netMask[1] & 0xff) << 16) | (((int) o._netMask[2] & 0xff) << 8) | (((int) o._netMask[3] & 0xff)));
-        if (this_value > o_value) return 1;
+        if (this_value > o_value) return -1;
         else if (this_value == o_value) return 0;
-        else return -1;
+        else return 1;
     }
 }
