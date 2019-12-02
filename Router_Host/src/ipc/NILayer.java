@@ -80,7 +80,7 @@ public class NILayer implements BaseLayer {
     private void packetStartDriver() {//패킷 드라이버 시작 함수
         int snaplen = 64 * 1024;//팻킷 캡처 길이
         int flags = Pcap.MODE_PROMISCUOUS;//모든 패킷 캡처
-        int timeout = 10 * 1000;//패킷 캡처 시간
+        int timeout = 1000;//패킷 캡처 시간
         this.m_AdapterObject = Pcap.openLive(NILayer.adapterList.get(this.adapterNumber).getName(),
                 snaplen, flags, timeout, NILayer.errbuf);//pcap 작동 시작
     }
@@ -143,11 +143,10 @@ public class NILayer implements BaseLayer {
         return true;
     }
 
-	@Override
-	public BaseLayer getUnderLayer(int nindex) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public BaseLayer getUnderLayer(int nindex) {
+        return null;
+    }
 }
 
 class ReceiveThread implements Runnable {
@@ -177,7 +176,7 @@ class ReceiveThread implements Runnable {
                 data = packet.getByteArray(0, packet.size());//패킷의 데이터 바이트배열와 패킷 크기를 알아냄
                 UpperLayer.receive(data);//상위 객체의 receive호출
             };
-            AdapterObject.loop(3000, jpacketHandler, "");
+            AdapterObject.loop(10000, jpacketHandler, "");
         }
     }
 }
