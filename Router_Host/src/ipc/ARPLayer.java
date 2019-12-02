@@ -69,7 +69,6 @@ public class ARPLayer implements BaseLayer {
             this.arpHeader.arpSrcaddr.macAddr = ARPDlg.GratuitousAddress; // 출발지 맥주소 = 바뀐주소
             this.arpHeader.arpDstaddr.ipAddr = ARPDlg.myIPAddress; // 도착지 근원지IP주소 = 내 IP주소
             byte[] arp = objToByteSend(arpHeader, (byte) 0x06, (byte) 0x01);
-            System.out.println("강영균 병신 새끼");
             return getUnderLayer().send(arp, arp.length);
         } else {
             this.arpHeader.arpSrcaddr.macAddr = ARPDlg.myMacAddress;
@@ -88,6 +87,10 @@ public class ARPLayer implements BaseLayer {
 
     @Override
     public synchronized boolean receive(byte[] input) {
+        return false;
+    }
+
+    public synchronized boolean receive(byte[] input, int indexOfUnderLayer) {
         byte[] opcode = Arrays.copyOfRange(input, 6, 8);
         byte[] srcMacAddress = Arrays.copyOfRange(input, 8, 14);
         byte[] srcIpAddress = Arrays.copyOfRange(input, 14, 18);
@@ -97,39 +100,35 @@ public class ARPLayer implements BaseLayer {
         if (opcode[0] == 0x00 & opcode[1] == 0x01) {// ARP 요청 받음
             this.setTimer(srcIpAddress, 180000);
             ArpHeader responseHeader = new ArpHeader();// 보낼 헤드 생성
-            if (Arrays.equals(dstIpAddress, ARPDlg.myIPAddress)) {// 내 ip로 온 경우 내 IP랑 헤더에 적힌 IP비교 -> 아닐경우 Proxy
-                responseHeader.arpSrcaddr.macAddr = ARPDlg.myMacAddress;// 내 mac주소 넣어준다.
+            EthernetLayer ethernetLayer = ((EthernetLayer) this.getUnderLayer(indexOfUnderLayer));
+
+            if (proxyTable.containsKey(byteArrayToString(dstIpAddress))) {// 연결된 proxy이다
+                responseHeader.arpSrcaddr.macAddr = ARPDlg.myMacAddress;// 여기다가 내 Mac주소 넣어준다. ***위에서 고쳐야함***
                 responseHeader.arpSrcaddr.ipAddr = dstIpAddress;
                 responseHeader.arpDstaddr.macAddr = srcMacAddress;
                 responseHeader.arpDstaddr.ipAddr = srcIpAddress;
-                this.arpCheckAndPut(srcIpAddress, srcMacAddress);
-            } else if (Arrays.equals(srcIpAddress, dstIpAddress)) { //GARP
-                this.arpCheckAndPut(srcIpAddress, srcMacAddress);
+                arpCheckAndPut(srcIpAddress, srcMacAddress);
+                //Proxy update 할 필요없음 -> 자신이 쳐서 올라가기때문이기때문
+                // swap
+            } else {// arp get data and arp reply
+                responseHeader.arpSrcaddr.macAddr = ((EthernetLayer) this.getUnderLayer(indexOfUnderLayer)).etherNetSrc();// 내 mac주소 넣어준다.
+                responseHeader.arpSrcaddr.ipAddr = dstIpAddress;
+                responseHeader.arpDstaddr.macAddr = srcMacAddress;
+                responseHeader.arpDstaddr.ipAddr = srcIpAddress;
+                ethernetLayer.setDestNumber(srcMacAddress);
+                ethernetLayer.setEndType((byte) 0x06);
 
-                return true;
-            } else {// 내 ip로 안옴
-                if (proxyTable.containsKey(byteArrayToString(dstIpAddress))) {// 연결된 proxy이다
-                    responseHeader.arpSrcaddr.macAddr = ARPDlg.myMacAddress;// 여기다가 내 Mac주소 넣어준다. ***위에서 고쳐야함***
-                    responseHeader.arpSrcaddr.ipAddr = dstIpAddress;
-                    responseHeader.arpDstaddr.macAddr = srcMacAddress;
-                    responseHeader.arpDstaddr.ipAddr = srcIpAddress;
-                    arpCheckAndPut(srcIpAddress, srcMacAddress);
-                    //Proxy update 할 필요없음 -> 자신이 쳐서 올라가기때문이기때문
-                    // swap
-                } else {// proxy아님
-                    this.arpCheckAndPut(srcIpAddress, srcMacAddress);
-
-                    return false;// proxy아니고 내꺼도 아니니 버린다
-                }
-            }
+                this.arpCheckAndPut(srcIpAddress, srcMacAddress);
+            } // arp table update
             // isChecked - 0x06-ARP , 0x01-Data
             byte[] responseArp = objToByteSend(responseHeader, (byte) 0x06, (byte) 0x02); // ARP reply -> ARP를 받은 후 답장을 위한 부분
-
-            return this.getUnderLayer().send(responseArp, responseArp.length);
+            // 헤더를 붙임
+            return this.getUnderLayer(indexOfUnderLayer).send(responseArp, responseArp.length);
         } else if (opcode[0] == 0x00 & opcode[1] == 0x02) {// 내가 보낸 ARP 요청이 돌아옴 (상대방이 주소를 넣어서 보냄)
             this.setTimer(srcIpAddress, 1200000);
             arpCheckAndPut(srcIpAddress, srcMacAddress);
             IPLayer.ischeck = false;
+
             return true;
         }
 

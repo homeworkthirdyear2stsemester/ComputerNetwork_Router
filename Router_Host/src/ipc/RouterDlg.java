@@ -275,8 +275,8 @@ public class RouterDlg extends JFrame {
             System.out.println(list[i][5]);
         }
         System.out.println("271");
-        for(int i = 0; i < list.length; i++) {
-        	model.addRow(list[i]);
+        for (int i = 0; i < list.length; i++) {
+            model.addRow(list[i]);
         }
         //model.addRow(list);
     }
@@ -315,6 +315,7 @@ public class RouterDlg extends JFrame {
             LayerManager.NUMBER_OF_ETHERNET_LAYER++;
             EthernetLayer ethernetLayer = new EthernetLayer("Ethernet_" + LayerManager.NUMBER_OF_ETHERNET_LAYER);
             ethernetLayer.setSrcNumber(srcMacAddress);
+            ethernetLayer.setIndexOfEtherLayer(option); // 0 : 왼쪽, 1 : 오른쪽
             mLayerMgr.AddLayer(ethernetLayer);
             layerTable.put("Ethernet", ethernetLayer);
 
@@ -342,7 +343,7 @@ public class RouterDlg extends JFrame {
             ni.setUpperUnderLayer(ethernet); // connect ethernet and ni
             ethernet.setUpperUnderLayer(arp);
             arp.setUpperUnderLayer(ip);
-            ethernet.setUpperLayer(ip);
+            ethernet.setUpperUnderLayer(ip);
         }
 
         private int deleteTableRow(JTable target, int option) {

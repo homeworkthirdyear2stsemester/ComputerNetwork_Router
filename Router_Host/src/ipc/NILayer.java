@@ -177,7 +177,7 @@ class ReceiveThread implements Runnable {
                 data = packet.getByteArray(0, packet.size());//패킷의 데이터 바이트배열와 패킷 크기를 알아냄
                 UpperLayer.receive(data);//상위 객체의 receive호출
             };
-            AdapterObject.loop(10000, jpacketHandler, "");
+            AdapterObject.loop(3000, jpacketHandler, "");
         }
     }
 }
