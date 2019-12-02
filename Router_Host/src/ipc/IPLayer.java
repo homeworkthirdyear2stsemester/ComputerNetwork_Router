@@ -46,15 +46,15 @@ public class IPLayer implements BaseLayer {
 
         // 아니면 ARP 요청이므로 ARP Layer로 전달
 
-        if (length == -1) { // GARP 요구시
-            int resultLength = input.length;
-            this.ip_header.ipDstAddr.addr = new byte[4]; // 헤더 주소 초기화
-            this.ip_header.ipSrcAddr.addr = new byte[4];
-            SetIpSrcAddress(((ARPDlg) this.getUpperLayer(0).getUpperLayer(2)).getMyIPAddress());
-
-            SetIpDstAddress(((ARPDlg) this.getUpperLayer(0).getUpperLayer(2)).getMyIPAddress()); // dst도 내 Mac주소로 해서
-            // 그래티우스라는걸 작업
-        }
+//        if (length == -1) { // GARP 요구시
+//            int resultLength = input.length;
+//            this.ip_header.ipDstAddr.addr = new byte[4]; // 헤더 주소 초기화
+//            this.ip_header.ipSrcAddr.addr = new byte[4];
+//            SetIpSrcAddress(((ARPDlg) this.getUpperLayer(0).getUpperLayer(2)).getMyIPAddress());
+//
+//            SetIpDstAddress(((ARPDlg) this.getUpperLayer(0).getUpperLayer(2)).getMyIPAddress()); // dst도 내 Mac주소로 해서
+//            // 그래티우스라는걸 작업
+//        }
 
         EthernetLayer ethernetLayer = (EthernetLayer) this.getUnderLayer(1);
         ethernetLayer.setEndType((byte) 0x00);
@@ -90,17 +90,32 @@ public class IPLayer implements BaseLayer {
         return buf;
     }
 
-    public void callARP(byte[] gateway) throws InterruptedException {
+    public void callARP(byte[] gateway, int index, byte[] input) {
         if (!ARPLayer.containMacAddress(gateway)) {
-            //ARP에 없음
-            SetIpDstAddress(gateway);
-            //시간아 멈쳐라
-            byte[] arp_Ipheader = objToByte20(ip_header, new byte[1], 1);
-            ischeck = true;
-            this.getUnderLayer(1).send(arp_Ipheader, arp_Ipheader.length); // arp
-            while (ischeck) {
-                Thread.sleep(50);
-            }
+            Runnable runnable = () -> {
+                System.out.println("wait start"); // 시작 확인 코드
+                SetIpDstAddress(gateway); // dst IP address 초기화
+                byte[] arp_Ipheader = objToByte20(ip_header, new byte[1], 1); // 헤더 붙이기
+
+                int option = routingTable.get(index)._interface; // interface설정
+                BaseLayer arpLayer = getUnderLayer(0);
+                BaseLayer ipLayer = arpLayer.getUpperLayer(option); // 해당 interface의 ipLayer로 이동
+                EthernetLayer ethernetLayer = ((EthernetLayer) ipLayer.getUnderLayer(1)); // ethernet layer로 이동
+                ((ARPLayer) arpLayer).send(arp_Ipheader, arp_Ipheader.length, gateway, option); // 다른 곳으로 arp requset
+
+                while (!ARPLayer.containMacAddress(gateway)) {
+                    try {
+                        Thread.sleep(50);
+                    } catch (Exception e) {
+                    }
+                }
+                System.out.println("send data");
+                ethernetLayer.setDestNumber(ARPLayer.getMacAddress(gateway));
+
+                ipLayer.send(input, input.length); // ipLayer를 통해 데이터 전달
+            };
+
+            runnable.run();
         }
     }
 
@@ -133,26 +148,14 @@ public class IPLayer implements BaseLayer {
                 byte[] dstIPAddress = routingTable.get(i)._gateway;
                 //같으면
                 if (!Arrays.equals(dstIPAddress, new byte[]{(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF})) { // gateway
-                    try {
-                        this.callARP(dstIPAddress);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    BaseLayer ipLayer = this.getUnderLayer(0).getUpperLayer(routingTable.get(i)._interface);
-                    ((EthernetLayer) ipLayer.getUnderLayer(1)).setDestNumber(ARPLayer.getMacAddress(dstIPAddress));
+                    this.callARP(dstIPAddress, i, input);
 
-                    return ipLayer.send(input, input.length); //iplayer;
+                    return false;
                 } else { // connected
                     //state connect
-                    try {
-                        this.callARP(ipheader);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    BaseLayer ipLayer = this.getUnderLayer(0).getUpperLayer(routingTable.get(i)._interface);
-                    ((EthernetLayer) ipLayer.getUnderLayer(1)).setDestNumber(ARPLayer.getMacAddress(ipheader));// connected IPLayer
+                    this.callARP(ipheader, i, input); // 이부분 디버그 필요 확인 무조건 하세요
 
-                    return ipLayer.send(input, input.length); //ipLayer;
+                    return false;
                 }
             }
         }

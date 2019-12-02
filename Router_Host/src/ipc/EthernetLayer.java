@@ -32,6 +32,10 @@ public class EthernetLayer implements BaseLayer {
         this.ethernetHeader.enetSrcAddr.setAddrData(array);
     }//src 정보 저장
 
+    public byte[] getSrcMacAddress() {
+        return this.ethernetHeader.enetSrcAddr.addr;
+    }
+
     public byte ethernetHeaderGetType(int index) {
         return this.ethernetHeader.enetType[index];
     }
