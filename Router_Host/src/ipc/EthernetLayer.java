@@ -157,9 +157,9 @@ public class EthernetLayer implements BaseLayer {
                 && input[12] == 0x08) {//브로드이거나 나한테
             byte[] removedHeaderData = this.removeCappHeaderData(input);
             if (input[13] == 0x00) {//ip
-                return this.getUpperLayer(0).receive(removedHeaderData); // IP Layer
+                return this.getUpperLayer(1).receive(removedHeaderData); // IP Layer
             } else if (input[13] == 0x06) {//arp
-                return this.getUpperLayer(1).receive(removedHeaderData); // ARP Layer
+                return this.getUpperLayer(0).receive(removedHeaderData); // ARP Layer
             }
         }
         return false;

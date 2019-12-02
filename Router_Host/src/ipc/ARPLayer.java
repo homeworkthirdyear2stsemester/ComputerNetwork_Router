@@ -142,7 +142,7 @@ public class ARPLayer implements BaseLayer {
             @Override
             public void run() {
                 arpTable.remove(Thread.currentThread().getName());
-                ARPDlg.updateARPTableToGUI();
+                RouterDlg.updateARPTable();
             }
         };
         timer.schedule(task, time); // 10초로 지정
@@ -161,10 +161,10 @@ public class ARPLayer implements BaseLayer {
                 }
             }
             arpTable.replace(byteArrayToString(srcIpAddress), srcMacAddress);
-            ARPDlg.updateARPTableToGUI();
+            RouterDlg.updateARPTable();
         } else {
             arpTable.put(stringIpAddress, srcMacAddress);
-            ARPDlg.updateARPTableToGUI();
+            RouterDlg.updateARPTable();
         }
     }
 
