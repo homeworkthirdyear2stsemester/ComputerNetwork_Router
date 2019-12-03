@@ -269,7 +269,7 @@ public class RouterDlg extends JFrame {
             System.out.println(list[i][1]);
             list[i][2] = getIPString(routerIndex._gateway);
             System.out.println(list[i][2]);
-            list[i][3] = String.valueOf(routerIndex._flag == 0 ? "U" : routerIndex._flag == 1 ? "UG" : "H");
+            list[i][3] = String.valueOf(routerIndex._flag == 0 ? "U" : routerIndex._flag == 1 ? "UG" : "UH");
             System.out.println(list[i][3]);
             list[i][4] = String.valueOf(routerIndex._interface);
             System.out.println(list[i][4]);
@@ -283,7 +283,7 @@ public class RouterDlg extends JFrame {
         //model.addRow(list);
     }
 
-    public static void updateARPTable() {
+    public synchronized static void updateARPTable() {
         DefaultTableModel model = (DefaultTableModel) arpTable.getModel();
         System.out.println("!!!!!!!!!!! : " + ARPLayer.arpTable.size());
         model.getDataVector().removeAllElements();
