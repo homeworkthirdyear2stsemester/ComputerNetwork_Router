@@ -255,9 +255,11 @@ public class RouterDlg extends JFrame {
     public void updateRoutingTable(List<Router> routingTableList) {
         DefaultTableModel model = (DefaultTableModel) routingTable.getModel();
         int rowCount = model.getRowCount();
-        for (int i = rowCount - 1; i >= 0; i--) {
-            model.removeRow(i);
-        }
+        model.getDataVector().removeAllElements();
+        model.fireTableDataChanged();
+//        for (int i = rowCount - 1; i >= 0; i--) {
+//            model.removeRow(i);
+//        }
         Object[][] list = new Object[routingTableList.size()][6];
         for (int i = 0; i < routingTableList.size(); i++) {
             Router routerIndex = routingTableList.get(i);
@@ -283,20 +285,22 @@ public class RouterDlg extends JFrame {
 
     public static void updateARPTable() {
         DefaultTableModel model = (DefaultTableModel) arpTable.getModel();
-        int rowCount = model.getRowCount();
-        for (int i = rowCount - 1; i >= 0; i--) {
-            model.removeRow(i);
+        System.out.println("!!!!!!!!!!! : " + ARPLayer.arpTable.size());
+        model.getDataVector().removeAllElements();
+        model.fireTableDataChanged();
+//        for (int i = model.getRowCount() - 1; i >= 0; i--) {
+//            model.removeRow(i);
+//        }
+        arpObjectList = new Object[ARPLayer.arpTable.size()][2];
+        int i = 0;
+        for (String key : ARPLayer.arpTable.keySet()) {
+            arpObjectList[i][0] = key;
+            arpObjectList[i][1] = MacData.byteMacArrayToStringMac(ARPLayer.arpTable.get(key));
+            i++;
         }
-        Hashtable<String, byte[]> arpList = (Hashtable) ARPLayer.arpTable;
-        arpObjectList = new Object[arpList.size()][2];
-        Set<String> keySetData = arpList.keySet();
-        int count = 0;
-        for (String key : keySetData) {
-            arpObjectList[count][0] = key;
-            arpObjectList[count][1] = MacData.byteMacArrayToStringMac(arpList.get(key));
+        for (int j = 0; j < ARPLayer.arpTable.size(); j++) {
+            model.addRow(arpObjectList[j]);
         }
-        System.out.println("289");
-        model.addRow(arpObjectList);
     }
 
     public class setAddressListener implements ActionListener {
