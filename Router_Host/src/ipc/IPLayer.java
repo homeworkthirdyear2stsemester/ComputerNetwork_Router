@@ -92,19 +92,18 @@ public class IPLayer implements BaseLayer {
 
     public void callARP(byte[] gateway, int index, byte[] input) {
         if (!ARPLayer.containMacAddress(gateway)) {
-            SetIpDstAddress(gateway); // dst IP address 초기화
-            int option = routingTable.get(index)._interface; // interface설정
-
-            BaseLayer arpLayer = getUnderLayer(0); // arp layer
-            BaseLayer ipLayer = arpLayer.getUpperLayer(option); // 해당 interface의 ipLayer로 이동
-            EthernetLayer ethernetLayer = ((EthernetLayer) ipLayer.getUnderLayer(1)); // ethernet layer로 이동
-            arpLayer.send(gateway, option); // 다른 곳으로 arp requset
-
             Runnable runnable = () -> {
+                SetIpDstAddress(gateway); // dst IP address 초기화
+                int option = routingTable.get(index)._interface; // interface설정
+                BaseLayer arpLayer = getUnderLayer(0); // arp layer
+                BaseLayer ipLayer = arpLayer.getUpperLayer(option); // 해당 interface의 ipLayer로 이동
+                EthernetLayer ethernetLayer = ((EthernetLayer) ipLayer.getUnderLayer(1)); // ethernet layer로 이동
+                arpLayer.send(gateway, option); // 다른 곳으로 arp requset
+
                 System.out.println("wait start"); // 시작 확인 코드
                 while (!ARPLayer.containMacAddress(gateway)) {
                     try {
-                        Thread.sleep(50);
+                        Thread.sleep(5);
                     } catch (Exception e) {
                     }
                 }
@@ -113,8 +112,15 @@ public class IPLayer implements BaseLayer {
 
                 ipLayer.send(input, input.length); // ipLayer를 통해 데이터 전달 ip header정보는 바뀌면 안되므로 바로 ehternet으로 내리느 코드가 존재
             };
+            Thread thread = new Thread(runnable);
 
-            runnable.run();
+            thread.start();
+        } else {
+            SetIpDstAddress(gateway); // dst IP address 초기화
+            int option = routingTable.get(index)._interface; // interface설정
+            BaseLayer arpLayer = getUnderLayer(0); // arp layer
+            BaseLayer ipLayer = arpLayer.getUpperLayer(option); // 해당 interface의 ipLayer로 이동
+            ipLayer.send(input, input.length); // ipLayer를 통해 데이터 전달 ip header정보는 바뀌면 안되므로 바로 ehternet으로 내리느 코드가 존재
         }
     }
 
