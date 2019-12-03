@@ -15,12 +15,12 @@ public class NILayer implements BaseLayer {
     public BaseLayer p_UnderLayer = null;
     public ArrayList<BaseLayer> p_aUpperLayer = new ArrayList<>();
 
-    private int adapterNumber;//네트워크 어뎁터 인덱스
-    public Pcap m_AdapterObject;//네트워크 어뎁터 객체
-    public PcapIf device;//네트워크 인터페이스 객체
-    public static List<PcapIf> adapterList;//네트워크 인터페이스 목록
+    private int adapterNumber;//�꽕�듃�썙�겕 �뼱�럞�꽣 �씤�뜳�뒪
+    public Pcap m_AdapterObject;//�꽕�듃�썙�겕 �뼱�럞�꽣 媛앹껜
+    public PcapIf device;//�꽕�듃�썙�겕 �씤�꽣�럹�씠�뒪 媛앹껜
+    public static List<PcapIf> adapterList;//�꽕�듃�썙�겕 �씤�꽣�럹�씠�뒪 紐⑸줉
     public static List<MacData> macAddressData;
-    static StringBuilder errbuf = new StringBuilder();//에러 버퍼
+    static StringBuilder errbuf = new StringBuilder();//�뿉�윭 踰꾪띁
     private ReceiveThread thread;
 
     public void setThreadIsRun(boolean isRun) {
@@ -32,12 +32,12 @@ public class NILayer implements BaseLayer {
         adapterNumber = 0;
     }
 
-    private static void getAdapterListInstance() { // Mac 주소를 가져와 준다. -> GUI Layer에서 호출
+    private static void getAdapterListInstance() { // Mac 二쇱냼瑜� 媛��졇�� 以��떎. -> GUI Layer�뿉�꽌 �샇異�
         if (NILayer.adapterList == null) {
             NILayer.adapterList = new ArrayList<>();
         }
         if (NILayer.adapterList.isEmpty()) {
-            NILayer.setAdapterList(); // mac주소 리스트를 받아와준다
+            NILayer.setAdapterList(); // mac二쇱냼 由ъ뒪�듃瑜� 諛쏆븘��以��떎
         }
     }
 
@@ -46,13 +46,13 @@ public class NILayer implements BaseLayer {
             macAddressData = new ArrayList<>();
             NILayer.getAdapterListInstance();
             for (int indexOfPcapList = 0; indexOfPcapList < NILayer.adapterList.size(); indexOfPcapList += 1) {
-                final PcapIf inputPcapIf = NILayer.adapterList.get(indexOfPcapList);//NILayer의 List를 가져옴
-                byte[] macAddress = null;//객체 지정
+                final PcapIf inputPcapIf = NILayer.adapterList.get(indexOfPcapList);//NILayer�쓽 List瑜� 媛��졇�샂
+                byte[] macAddress = null;//媛앹껜 吏��젙
                 try {
                     macAddress = inputPcapIf.getHardwareAddress();
                 } catch (IOException e) {
                     System.out.println("Address error is happen");
-                }//에러 표출
+                }//�뿉�윭 �몴異�
                 if (macAddress == null) {
                     continue;
                 }
@@ -65,24 +65,24 @@ public class NILayer implements BaseLayer {
 
     public static void setAdapterList() {
         int r = Pcap.findAllDevs(adapterList, errbuf);
-        //현재 컴퓨터에 존재하는 모든 네트워크 어뎁터 목록 가져오기
+        //�쁽�옱 而댄벂�꽣�뿉 議댁옱�븯�뒗 紐⑤뱺 �꽕�듃�썙�겕 �뼱�럞�꽣 紐⑸줉 媛��졇�삤湲�
         if (r == Pcap.NOT_OK || adapterList.isEmpty()) {
             System.err.printf("Can't read list of devices, error is %s", errbuf.toString());
-        }//네트워크 어뎁터가 하나도 존재하지 않을 경우 에러 처리
+        }//�꽕�듃�썙�겕 �뼱�럞�꽣媛� �븯�굹�룄 議댁옱�븯吏� �븡�쓣 寃쎌슦 �뿉�윭 泥섎━
     }
 
-    public void setAdapterNumber(int iNum) { // combo box에서 가져온 값을 여기 넣는다
-        this.adapterNumber = iNum;//어뎁터 번호 초기화
-        this.packetStartDriver();//패킷 드라이버 시작 함수
-        this.receive();//패킷 수신함수
+    public void setAdapterNumber(int iNum) { // combo box�뿉�꽌 媛��졇�삩 媛믪쓣 �뿬湲� �꽔�뒗�떎
+        this.adapterNumber = iNum;//�뼱�럞�꽣 踰덊샇 珥덇린�솕
+        this.packetStartDriver();//�뙣�궥 �뱶�씪�씠踰� �떆�옉 �븿�닔
+        this.receive();//�뙣�궥 �닔�떊�븿�닔
     }
 
-    private void packetStartDriver() {//패킷 드라이버 시작 함수
-        int snaplen = 64 * 1024;//팻킷 캡처 길이
-        int flags = Pcap.MODE_PROMISCUOUS;//모든 패킷 캡처
-        int timeout = 1000;//패킷 캡처 시간
+    private void packetStartDriver() {//�뙣�궥 �뱶�씪�씠踰� �떆�옉 �븿�닔
+        int snaplen = 64 * 1024;//�뙸�궥 罹≪쿂 湲몄씠
+        int flags = Pcap.MODE_PROMISCUOUS;//紐⑤뱺 �뙣�궥 罹≪쿂
+        int timeout = 1000;//�뙣�궥 罹≪쿂 �떆媛�
         this.m_AdapterObject = Pcap.openLive(NILayer.adapterList.get(this.adapterNumber).getName(),
-                snaplen, flags, timeout, NILayer.errbuf);//pcap 작동 시작
+                snaplen, flags, timeout, NILayer.errbuf);//pcap �옉�룞 �떆�옉
     }
 
     @Override
@@ -115,7 +115,7 @@ public class NILayer implements BaseLayer {
     public void setUpperLayer(BaseLayer pUpperLayer) {
         if (pUpperLayer == null)
             return;
-        this.p_aUpperLayer.add(nUpperLayerCount++, pUpperLayer);//layer추가
+        this.p_aUpperLayer.add(nUpperLayerCount++, pUpperLayer);//layer異붽�
         // nUpperLayerCount++;
     }
 
@@ -126,7 +126,7 @@ public class NILayer implements BaseLayer {
     }
 
     @Override
-    public boolean receive() {//쓰레드 객체 생성
+    public boolean receive() {//�벐�젅�뱶 媛앹껜 �깮�꽦
         thread = new ReceiveThread(this.m_AdapterObject, this.getUpperLayer(0));
         Thread obj = new Thread(thread);
         obj.start();
@@ -162,7 +162,7 @@ class ReceiveThread implements Runnable {
     ReceiveThread(Pcap m_AdapterObject, BaseLayer m_UpperLayer) {
         this.AdapterObject = m_AdapterObject;
         this.UpperLayer = m_UpperLayer;
-    }//객체 초기화
+    }//媛앹껜 珥덇린�솕
 
     @Override
     public void run() {
@@ -173,8 +173,8 @@ class ReceiveThread implements Runnable {
                 return;
             }
             PcapPacketHandler<String> jpacketHandler = (packet, user) -> {
-                data = packet.getByteArray(0, packet.size());//패킷의 데이터 바이트배열와 패킷 크기를 알아냄
-                UpperLayer.receive(data);//상위 객체의 receive호출
+                data = packet.getByteArray(0, packet.size());//�뙣�궥�쓽 �뜲�씠�꽣 諛붿씠�듃諛곗뿴�� �뙣�궥 �겕湲곕�� �븣�븘�깂
+                UpperLayer.receive(data);//�긽�쐞 媛앹껜�쓽 receive�샇異�
             };
             AdapterObject.loop(10000, jpacketHandler, "");
         }
