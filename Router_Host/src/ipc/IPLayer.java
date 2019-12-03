@@ -93,13 +93,13 @@ public class IPLayer implements BaseLayer {
     public void callARP(byte[] gateway, int index, byte[] input) {
         if (!ARPLayer.containMacAddress(gateway)) {
             SetIpDstAddress(gateway); // dst IP address 초기화
-            byte[] arp_Ipheader = objToByte20(ip_header, new byte[1], 1); // 헤더 붙이기
-
             int option = routingTable.get(index)._interface; // interface설정
+
             BaseLayer arpLayer = getUnderLayer(0); // arp layer
             BaseLayer ipLayer = arpLayer.getUpperLayer(option); // 해당 interface의 ipLayer로 이동
             EthernetLayer ethernetLayer = ((EthernetLayer) ipLayer.getUnderLayer(1)); // ethernet layer로 이동
-            ((ARPLayer) arpLayer).send(arp_Ipheader, arp_Ipheader.length, gateway, option); // 다른 곳으로 arp requset
+            arpLayer.send(gateway, option); // 다른 곳으로 arp requset
+
             Runnable runnable = () -> {
                 System.out.println("wait start"); // 시작 확인 코드
                 while (!ARPLayer.containMacAddress(gateway)) {
