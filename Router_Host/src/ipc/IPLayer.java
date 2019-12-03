@@ -103,7 +103,7 @@ public class IPLayer implements BaseLayer {
                 System.out.println("wait start"); // 시작 확인 코드
                 while (!ARPLayer.containMacAddress(gateway)) {
                     try {
-                        Thread.sleep(5);
+                        Thread.sleep(1);
                     } catch (Exception e) {
                     }
                 }
@@ -292,10 +292,16 @@ class Router implements Comparable<Router> {
 
     @Override
     public int compareTo(Router o) {
-        int this_value = ((((int) this._netMask[0] & 0xff) << 24) | (((int) this._netMask[1] & 0xff) << 16) | (((int) this._netMask[2] & 0xff) << 8) | (((int) this._netMask[3] & 0xff)));
-        int o_value = ((((int) o._netMask[0] & 0xff) << 24) | (((int) o._netMask[1] & 0xff) << 16) | (((int) o._netMask[2] & 0xff) << 8) | (((int) o._netMask[3] & 0xff)));
+        long this_value = ((((long) this._netMask[0] & 0xff) << 24) + (((long) this._netMask[1] & 0xff) << 16) + (((long) this._netMask[2] & 0xff) << 8) + (((long) this._netMask[3] & 0xff)));
+        long o_value = ((((long) o._netMask[0] & 0xff) << 24) + (((long) o._netMask[1] & 0xff) << 16) + (((long) o._netMask[2] & 0xff) << 8) + (((long) o._netMask[3] & 0xff)));
         if (this_value > o_value) return -1;
-        else if (this_value == o_value) return 0;
+        else if (this_value == o_value) {
+            long this_Dst_value = ((((long) this._dstAddress[0] & 0xff) << 24) + (((long) this._dstAddress[1] & 0xff) << 16) + (((long) this._dstAddress[2] & 0xff) << 8) + (((long) this._dstAddress[3] & 0xff)));
+            long o_Dst_value = ((((long) o._dstAddress[0] & 0xff) << 24) + (((long) o._dstAddress[1] & 0xff) << 16) + (((long) o._dstAddress[2] & 0xff) << 8) + (((long) o._dstAddress[3] & 0xff)));
+            if (this_Dst_value > o_Dst_value) return -1;
+            else if(this_Dst_value == o_Dst_value) return 0;
+            else return 1;
+        }
         else return 1;
     }
 }
