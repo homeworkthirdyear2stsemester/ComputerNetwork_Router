@@ -36,10 +36,6 @@ public class EthernetLayer implements BaseLayer {
         return this.ethernetHeader.enetSrcAddr.addr;
     }
 
-    public byte ethernetHeaderGetType(int index) {
-        return this.ethernetHeader.enetType[index];
-    }
-
     private class EthernetAddr {
         private byte[] addr = new byte[6];
 
@@ -128,48 +124,14 @@ public class EthernetLayer implements BaseLayer {
     @Override
     public synchronized boolean send(byte[] input, int length) {
         byte[] headerAddedArray = new byte[length + 14];
-        for (int index = 0; index < 6; index++) {
+        for (int index = 0; index < 6; index++) { // set address
             headerAddedArray[index + 6] = this.ethernetHeader.enetSrcAddr.addr[index];
             headerAddedArray[index] = this.ethernetHeader.enetDstAddr.addr[index];
         }
 
-        headerAddedArray[12] = this.ethernetHeader.enetType[0];
+        headerAddedArray[12] = this.ethernetHeader.enetType[0];// type 설정
         headerAddedArray[13] = this.ethernetHeader.enetType[1];
         System.arraycopy(input, 0, headerAddedArray, 14, input.length);
-
-//        byte[] dstIp = Arrays.copyOfRange(input, 25, 29);
-//        byte[] dstMac = ARPLayer.getMacAddress(dstIp);//ip에 따른 mac주소 가져오기
-//
-//        if (is_checked == 0x06 && input[8] == 0x01) {//arp요청
-//            while (index < 6) {//브로드캐스트
-//                headerAddedArray[index] = (byte) 0xff;
-//                index += 1;
-//            }
-//            headerAddedArray[13] = this.ethernetHeader.enetType[1]; //  ARP에서 06 변환해서 보내기
-//        } else if (is_checked == 0x06 && input[8] == 0x02) {//arp 응답
-//            while (index < 6) {//요청온 주소
-//                headerAddedArray[index] = dstMac[index];
-//                index += 1;
-//            }
-//            headerAddedArray[13] = (byte) 0x06;
-//        } else if (is_checked == 0x08) {//ip
-//
-//            dstIp = Arrays.copyOfRange(input, 17, 21);
-//            dstMac = ARPLayer.getMacAddress(dstIp);//ip에 따른 mac주소 가져오기
-//
-//            while (index < 6) {//해당 mac으로 보냄
-//                headerAddedArray[index] = dstMac[index];
-//                index += 1;
-//            }
-//            headerAddedArray[13] = this.ethernetHeader.enetType[1]; // ARP에서 00으로 변환해서 보내기
-//        }
-//
-//        while (index < 12) { // 나의 mac주소
-//            headerAddedArray[index] = this.ethernetHeader.enetSrcAddr.getAddrData(index - 6);//내 mac주소
-//            index += 1;
-//        }
-//        headerAddedArray[12] = this.ethernetHeader.enetType[0];
-//        System.arraycopy(input, 0, headerAddedArray, 14, length);
 
         return this.getUnderLayer().send(headerAddedArray, headerAddedArray.length);
     }
@@ -195,7 +157,7 @@ public class EthernetLayer implements BaseLayer {
         return removeCappHeader;
     }
 
-    /*
+    /**
      * @param  myAddressData : mac주소 byte 배열
      * @param  inputFrameData : header를 재거하지 않은 배열
      * @param  inputDataStartIndex : src : 6, dst : 0을 넣으면 된다 -> 코드 재사용 때문에 사용
