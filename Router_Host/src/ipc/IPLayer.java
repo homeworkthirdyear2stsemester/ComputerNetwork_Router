@@ -100,7 +100,6 @@ public class IPLayer implements BaseLayer {
             BaseLayer ipLayer = arpLayer.getUpperLayer(option); // 해당 interface의 ipLayer로 이동
             EthernetLayer ethernetLayer = ((EthernetLayer) ipLayer.getUnderLayer(1)); // ethernet layer로 이동
             ((ARPLayer) arpLayer).send(arp_Ipheader, arp_Ipheader.length, gateway, option); // 다른 곳으로 arp requset
-
             Runnable runnable = () -> {
                 System.out.println("wait start"); // 시작 확인 코드
                 while (!ARPLayer.containMacAddress(gateway)) {

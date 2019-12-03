@@ -58,33 +58,26 @@ public class ARPLayer implements BaseLayer {
         return proxyTable.get(ip); // arp에 없을경우 proxy table에서 찾아본다
     }
 
-    public synchronized boolean send(byte[] input, int length, byte[] gateway, int option) {
+    @Override
+    public synchronized boolean send(byte[] gateway, int option) {
         // IPLayer가 arp테이블을 봤는데 없어서 일로 옴
         // ARP를 만든다.
-        byte[] myIpAddr = ((IPLayer)this.getUpperLayer(option)).getIpSrcAddress();
-        byte[] myMacAddr = ((EthernetLayer)this.getUpperLayer(option)).getSrcMacAddress();
+        IPLayer ipLayer = (IPLayer) this.getUpperLayer(option);
+        EthernetLayer ethernetLayer = (EthernetLayer) this.getUnderLayer(option); // option으로 알맞은 인터페이스 이더넷 얻어옴
+        byte[] myIpAddr = ipLayer.getIpSrcAddress();
+        byte[] myMacAddr = ethernetLayer.getSrcMacAddress();
         this.arpHeader.arpSrcaddr.ipAddr = myIpAddr; // 출발지 IP주소 = 내 IP주소
-//        byte[] targetip = Arrays.copyOfRange(input, 12, 16);
-//        byte[] myip = Arrays.copyOfRange(input, 16, 20);
-//        if (Arrays.equals(targetip, myip)) { // g ARP : mac 주소 변경
-//            this.arpHeader.arpSrcaddr.macAddr = ARPDlg.GratuitousAddress; // 출발지 맥주소 = 바뀐주소
-//            this.arpHeader.arpDstaddr.ipAddr = ARPDlg.myIPAddress; // 도착지 근원지IP주소 = 내 IP주소
-//            byte[] arp = objToByteSend(arpHeader, (byte) 0x06, (byte) 0x01);
-//            return getUnderLayer().send(arp, arp.length);
-//        } else {
-            this.arpHeader.arpSrcaddr.macAddr = myMacAddr;
-            this.arpHeader.arpDstaddr.ipAddr = gateway;
+        this.arpHeader.arpSrcaddr.macAddr = myMacAddr;
+        this.arpHeader.arpDstaddr.ipAddr = gateway;
 
-            this.arpHeader.arpDstaddr.macAddr = new byte[6]; // 다시 0 으로 초기화 해서 잔료 데이터를 없애준다
+        this.arpHeader.arpDstaddr.macAddr = new byte[6]; // 다시 0 으로 초기화 해서 잔료 데이터를 없애준다
 
-            byte[] headerAddedArray = objToByteSend(arpHeader, (byte) 0x06, (byte) 0x01);// ARP이고 요청인 헤더
-            arpTable.put(byteArrayToString(gateway), new byte[1]);
+        byte[] headerAddedArray = objToByteSend(arpHeader, (byte) 0x01);// ARP이고 요청인 헤더
+        // arpTable.put(byteArrayToString(gateway), new byte[1]);
 
-            RouterDlg.updateARPTable();
+        RouterDlg.updateARPTable();
 
-            return this.getUnderLayer().send(headerAddedArray, headerAddedArray.length);
-            // EthernetLayer의 send호출
-//        }
+        return ethernetLayer.send(headerAddedArray, headerAddedArray.length);
     }
 
     @Override
@@ -123,7 +116,7 @@ public class ARPLayer implements BaseLayer {
                 this.arpCheckAndPut(srcIpAddress, srcMacAddress);
             } // arp table update
             // isChecked - 0x06-ARP , 0x01-Data
-            byte[] responseArp = objToByteSend(responseHeader, (byte) 0x06, (byte) 0x02); // ARP reply -> ARP를 받은 후 답장을 위한 부분
+            byte[] responseArp = objToByteSend(responseHeader, (byte) 0x02); // ARP reply -> ARP를 받은 후 답장을 위한 부분
             // 헤더를 붙임
             return this.getUnderLayer(indexOfUnderLayer).send(responseArp, responseArp.length);
         } else if (opcode[0] == 0x00 & opcode[1] == 0x02) {// 내가 보낸 ARP 요청이 돌아옴 (상대방이 주소를 넣어서 보냄)
@@ -177,7 +170,7 @@ public class ARPLayer implements BaseLayer {
         return String.valueOf(a) + "." + String.valueOf(b) + "." + String.valueOf(c) + "." + String.valueOf(d);
     }
 
-    public byte[] objToByteSend(ArpHeader Header, byte is_checked, byte opcode) {
+    public byte[] objToByteSend(ArpHeader Header, byte opcode) {
         byte[] buf = new byte[28]; // ARP Frame
         byte[] srcMac = Header.arpSrcaddr.macAddr;
         byte[] srcIp = Header.arpSrcaddr.ipAddr;
