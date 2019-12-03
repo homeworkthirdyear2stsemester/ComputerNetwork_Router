@@ -81,7 +81,7 @@ public class NILayer implements BaseLayer {
 	private void packetStartDriver() {// �뙣�궥 �뱶�씪�씠踰� �떆�옉 �븿�닔
 		int snaplen = 64 * 1024;// �뙸�궥 罹≪쿂 湲몄씠
 		int flags = Pcap.MODE_PROMISCUOUS;// 紐⑤뱺 �뙣�궥 罹≪쿂
-		int timeout = 500;// �뙣�궥 罹≪쿂 �떆媛�
+		int timeout = 1;// �뙣�궥 罹≪쿂 �떆媛�
 		this.m_AdapterObject = Pcap.openLive(NILayer.adapterList.get(this.adapterNumber).getName(), snaplen, flags,
 				timeout, NILayer.errbuf);// pcap �옉�룞 �떆�옉
 	}
