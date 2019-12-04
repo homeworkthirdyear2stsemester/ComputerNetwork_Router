@@ -78,7 +78,7 @@ public class ARPLayer implements BaseLayer {
         RouterDlg.updateARPTable();
 
         byte[] broadCast = new byte[6];
-        for(int i = 0; i < 6; i ++){
+        for (int i = 0; i < 6; i++) {
             broadCast[i] = (byte) 0xff;
         }
         ethernetLayer.setDestNumber(broadCast);
