@@ -25,36 +25,6 @@ public class IPLayer implements BaseLayer {
     }
 
     public boolean send(byte[] input, int length) {
-//		int resultLength = input.length;
-//		this.ip_header.ipDstAddr.addr = new byte[4]; // 헤더 주소 초기화
-//		this.ip_header.ipSrcAddr.addr = new byte[4];
-//		SetIpSrcAddress(((ARPDlg) this.getUpperLayer(0).getUpperLayer(2)).getMyIPAddress());
-//
-//		if (length == -1) { // 그래티우스일 경우 ARPLayer로 처리
-//			SetIpDstAddress(((ARPDlg) this.getUpperLayer(0).getUpperLayer(2)).getMyIPAddress()); // dst도 내 Mac주소로 해서
-//																									// 그래티우스라는걸 작업
-//		} else {
-//			SetIpDstAddress(((ARPDlg) this.getUpperLayer(0).getUpperLayer(2)).getTargetIPAddress());
-//		}
-//
-//		byte[] temp = objToByte20(this.ip_header, input, resultLength); // multiplexing
-//
-//		if (ARPLayer.containMacAddress(this.ip_header.ipDstAddr.addr)) {// 목적지 IP주소가 캐싱되어있으면 -> table 존재 -> data
-//																		// frame이므로 바로 전송
-//			return this.getUnderLayer(0).send(temp, resultLength + 20);// 데이터이므로 Ethernet Layer로 전달
-//		}
-
-        // 아니면 ARP 요청이므로 ARP Layer로 전달
-
-//        if (length == -1) { // GARP 요구시
-//            int resultLength = input.length;
-//            this.ip_header.ipDstAddr.addr = new byte[4]; // 헤더 주소 초기화
-//            this.ip_header.ipSrcAddr.addr = new byte[4];
-//            SetIpSrcAddress(((ARPDlg) this.getUpperLayer(0).getUpperLayer(2)).getMyIPAddress());
-//
-//            SetIpDstAddress(((ARPDlg) this.getUpperLayer(0).getUpperLayer(2)).getMyIPAddress()); // dst도 내 Mac주소로 해서
-//            // 그래티우스라는걸 작업
-//        }
 
         EthernetLayer ethernetLayer = (EthernetLayer) this.getUnderLayer(1);
         ethernetLayer.setEndType((byte) 0x00);
@@ -62,33 +32,6 @@ public class IPLayer implements BaseLayer {
         return ethernetLayer.send(input, input.length); // ehternet 실제 데이터 보내기
     }
 
-    private byte[] objToByte20(IpHeader ipHeader, byte[] input, int length) { // 헤더 추가부분
-
-        byte[] buf = new byte[length + 20];
-
-        buf[0] = ipHeader.ipVerlen;
-        buf[1] = ipHeader.ipTos;
-        buf[2] = (byte) (((length + 20) >> 8) & 0xFF);
-        buf[3] = (byte) ((length + 20) & 0xFF);
-
-        buf[4] = (byte) ((ipHeader.ipId >> 8) & 0xFF);
-        buf[5] = (byte) (ipHeader.ipId & 0xFF);
-
-        buf[6] = (byte) ((ipHeader.ipFragOff >> 8) & 0xFF);
-        buf[7] = (byte) (ipHeader.ipFragOff & 0xFF);
-
-        buf[8] = ipHeader.ipTtl;
-        buf[9] = ipHeader.ipProto;
-
-        buf[10] = (byte) ((ipHeader.ipCksum >> 8) & 0xFF);
-        buf[11] = (byte) (ipHeader.ipCksum & 0xFF);
-
-        System.arraycopy(ipHeader.ipSrcAddr.addr, 0, buf, 12, 4);
-        System.arraycopy(ipHeader.ipDstAddr.addr, 0, buf, 16, 4);
-        System.arraycopy(input, 0, buf, 20, length);
-
-        return buf;
-    }
 
     public void callARP(byte[] gateway, int index, byte[] input) {
         if (!ARPLayer.containMacAddress(gateway)) {

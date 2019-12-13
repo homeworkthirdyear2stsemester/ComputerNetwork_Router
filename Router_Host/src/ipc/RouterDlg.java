@@ -254,12 +254,8 @@ public class RouterDlg extends JFrame {
 
     public void updateRoutingTable(List<Router> routingTableList) {
         DefaultTableModel model = (DefaultTableModel) routingTable.getModel();
-        int rowCount = model.getRowCount();
         model.getDataVector().removeAllElements();
         model.fireTableDataChanged();
-//        for (int i = rowCount - 1; i >= 0; i--) {
-//            model.removeRow(i);
-//        }
         Object[][] list = new Object[routingTableList.size()][6];
         for (int i = 0; i < routingTableList.size(); i++) {
             Router routerIndex = routingTableList.get(i);
@@ -269,18 +265,16 @@ public class RouterDlg extends JFrame {
             System.out.println(list[i][1]);
             list[i][2] = getIPString(routerIndex._gateway);
             System.out.println(list[i][2]);
-            list[i][3] = String.valueOf(routerIndex._flag == 0 ? "U" : routerIndex._flag == 1 ? "UG" : "UH");
+            list[i][3] = routerIndex._flag == 0 ? "U" : routerIndex._flag == 1 ? "UG" : "UH";
             System.out.println(list[i][3]);
             list[i][4] = String.valueOf(routerIndex._interface);
             System.out.println(list[i][4]);
             list[i][5] = String.valueOf(routerIndex._metric);
             System.out.println(list[i][5]);
         }
-        System.out.println("271");
         for (int i = 0; i < list.length; i++) {
             model.addRow(list[i]);
         }
-        //model.addRow(list);
     }
 
     public synchronized static void updateARPTable() {
@@ -288,9 +282,6 @@ public class RouterDlg extends JFrame {
         System.out.println("!!!!!!!!!!! : " + ARPLayer.arpTable.size());
         model.getDataVector().removeAllElements();
         model.fireTableDataChanged();
-//        for (int i = model.getRowCount() - 1; i >= 0; i--) {
-//            model.removeRow(i);
-//        }
         arpObjectList = new Object[ARPLayer.arpTable.size()][2];
         int i = 0;
         for (String key : ARPLayer.arpTable.keySet()) {
@@ -303,7 +294,7 @@ public class RouterDlg extends JFrame {
         }
     }
 
-    public class setAddressListener implements ActionListener {
+    public class setAddressListener implements ActionListener { // Event Listener
 
         private void makeLayerAndThreadOpenIfChoosePort(int portNumber, byte[] srcIpAddress, byte[] srcMacAddress,
                                                         int option) {
@@ -350,7 +341,7 @@ public class RouterDlg extends JFrame {
             ethernet.setUpperUnderLayer(ip);
         }
 
-        private int deleteTableRow(JTable target, int option) {
+        private int deleteTableRow(JTable target, int option) { // 테이블에 Row 삭제
             String indexValue = JOptionPane.showInputDialog(null, "삭제할 Cache의 인덱스를 입력해주세요(Index : 1부터 시작)",
                     "Cache Delete", JOptionPane.OK_CANCEL_OPTION);
             int indexValueInteger = 0;
@@ -372,23 +363,23 @@ public class RouterDlg extends JFrame {
             if (e.getSource() == routingAddBtn) {
                 new RouterAddDlg();
 
-            } else if (e.getSource() == proxyAddBtn) {
+            } else if (e.getSource() == proxyAddBtn) { // 프록시 추가 버튼
                 new ProxyDlg();
-            } else if (e.getSource() == routingDeleteBtn) {
+            } else if (e.getSource() == routingDeleteBtn) { // 라우터 정보 제거 버튼
                 deleteTableRow(routingTable, 0);
-            } else if (e.getSource() == arpDeleteBtn) {
+            } else if (e.getSource() == arpDeleteBtn) { // arp 정보 제거 버튼
                 int index = deleteTableRow(arpTable, 0);
                 String target = (String) arpObjectList[index][0];
                 ARPLayer.Remove_Arp(getIPByteArray(target.split("\\.")));
-            } else if (e.getSource() == proxyDeleteBtn) {
+            } else if (e.getSource() == proxyDeleteBtn) { // 프록시 정보 제거 버튼
                 deleteTableRow(proxyTable, 1);
-            } else if (e.getSource() == leftComboBox) {
+            } else if (e.getSource() == leftComboBox) { // 왼쪽 Connector 정보
                 int index = leftComboBox.getSelectedIndex();
                 leftMacTextArea.setText(MacData.byteMacArrayToStringMac(adapterList.get(index).macAddress));
-            } else if (e.getSource() == rightComboBox) {
+            } else if (e.getSource() == rightComboBox) { // 오른쪽 Connector 정보
                 int index = rightComboBox.getSelectedIndex();
                 rightMacTextArea.setText(MacData.byteMacArrayToStringMac(adapterList.get(index).macAddress));
-            } else if (e.getSource() == leftConnectorBtn) {
+            } else if (e.getSource() == leftConnectorBtn) { // 왼쪽 Connector setting
                 if (e.getActionCommand().equals("Setting")) {
                     String srcMacString = leftMacTextArea.getText();
                     String srcIPString = leftIPTextArea.getText();
@@ -404,7 +395,7 @@ public class RouterDlg extends JFrame {
                     leftIPTextArea.enable(true);
                     leftConnectorBtn.setText("Setting");
                 }
-            } else if (e.getSource() == rightConnectorBtn) {
+            } else if (e.getSource() == rightConnectorBtn) { // 오른쪽 Connector setting
                 if (e.getActionCommand().equals("Setting")) {
                     String srcMacString = rightMacTextArea.getText();
                     String srcIPString = rightIPTextArea.getText();
@@ -431,7 +422,7 @@ public class RouterDlg extends JFrame {
         /**
          * Create the frame.
          */
-        public RouterAddDlg() {
+        public RouterAddDlg() { // Router 정보 작성 modal box
             setTitle("Add Router");
             setBounds(100, 100, 482, 373);
             contentPane = new JPanel();
@@ -536,9 +527,6 @@ public class RouterDlg extends JFrame {
                 IPLayer.addRoutingTable(getIPByteArray(destination.split("\\.")),
                         getIPByteArray(netmask.split("\\.")), getIPByteArray(gateway.split("\\.")), flagNum,
                         Integer.parseInt(interfaceString), Integer.parseInt(Metric));
-//                DefaultTableModel model = (DefaultTableModel) routingTable.getModel();
-//                System.out.println("526");
-//                model.addRow(new Object[]{destination, netmask, gateway, flag, interfaceString, Metric});
                 destinationText.setText("");
                 netMaskText.setText("");
                 gatewayText.setText("");
@@ -560,7 +548,7 @@ public class RouterDlg extends JFrame {
         }
     }
 
-    public class ProxyDlg extends JFrame {
+    public class ProxyDlg extends JFrame { // Proxy 정보 작성 modal box
         ProxyDlg() {
             setTitle("Proxy ARP Entry 추가");
             setBounds(100, 100, 450, 300);
