@@ -108,6 +108,8 @@ public class ARPLayer implements BaseLayer {
                 responseHeader.arpSrcaddr.ipAddr = dstIpAddress;
                 responseHeader.arpDstaddr.macAddr = srcMacAddress;
                 responseHeader.arpDstaddr.ipAddr = srcIpAddress;
+                ethernetLayer.setDestNumber(srcMacAddress);
+                ethernetLayer.setEndType((byte) 0x06);
                 arpCheckAndPut(srcIpAddress, srcMacAddress);
                 //Proxy update 할 필요없음 -> 자신이 쳐서 올라가기때문이기때문
                 // swap
